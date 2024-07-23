@@ -1,0 +1,139 @@
+﻿@model DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container">
+    
+    <div class="d-flex justify-content-between">
+        <h1 class="display-4">Dashboard</h1>
+        <div>
+            <button class="btn btn-danger" id="importBtn">Import</button>
+        </div>
+    </div>
+
+    @if (Model.YearInOut != null)
+    {
+        <div class="dashboard-month-inout">
+            <div class="dashboard-month-in month-inout-pill">In: @(Helper.FormatCurrency(Model.YearInOut.YearIn))</div>
+            <div class="dashboard-month-out month-inout-pill">Out: @(Helper.FormatCurrency(Model.YearInOut.YearOut))</div>
+            <div class="dashboard-month-net month-inout-pill">Net: @(Helper.FormatCurrency(Model.YearInOut.YearIn - Model.YearInOut.YearOut))</div>
+        </div>
+    }
+    
+    <div style="height:20px"></div>
+    
+    <div class="row">
+        <div class="col-lg-9">
+            @foreach (var yearGroup in Model.CategoryTotals.GroupBy(t => t.Year))
+            {
+                int year = yearGroup.Key;
+
+                foreach (var group in yearGroup.GroupBy(t => t.Month))
+                {
+                    int month = group.Key;
+
+                    DateTime monthDate = new DateTime(year, month, 1);
+                    VwMonthInOut? monthInOut = Model.MonthInOuts.Where(m => m.Year == year && m.Month == month).FirstOrDefault();
+
+                    <div class="row dashboard-month-row" onclick="window.location = '/breakdown/@monthDate.ToString("yyyy/MM")'">
+
+                        <div class="dashboard-month-row-header">
+                            <h4>@monthDate.ToString("MMMM yyyy")</h4>
+
+                            @if (monthInOut != null)
+                            {
+                                <div class="d-flex align-items-center">
+                                    <div class="dashboard-month-inout">
+                                        <div class="dashboard-month-in month-inout-pill">In: @(Helper.FormatCurrency(monthInOut.MonthIn))</div>
+                                        <div class="dashboard-month-out month-inout-pill">Out: @(Helper.FormatCurrency(monthInOut.MonthOut))</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="band-holder">
+
+                            @foreach (VwCategoryTotal band in group.Where(t => t.CategoryId != 0).OrderByDescending(t => Math.Abs(t.PercentOfMonthlyIncome ?? 0)))
+                            {
+                                @* background-color:#@band.CategoryColour *@
+                                @* background:linear-gradient(#@band.CategoryColour, @Helper.AddBrightnessToColour(band.CategoryColour, 80)); *@
+                                <div class="band" style="width:@Math.Abs(band.PercentOfMonthlyIncome ?? 0)%;background:linear-gradient(#@band.CategoryColour, @Helper.AddBrightnessToColour(band.CategoryColour, 80));">
+                                    <div class="band-tooltip">
+                                        @band.CategoryName: @Helper.FormatCurrency(Math.Abs(band.CategoryTotal)) (@Math.Abs(band.PercentOfMonthlyIncome ?? 0)%)
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        <div class="col-lg-3">
+            @foreach (TblBudgetItem specialItem in Model.SpecialBudgets)
+            {
+                if (specialItem.Amount == null) continue;
+
+                int spendSoFar = Model.CategoryTotals.Where(t => t.CategoryId == specialItem.CategoryId).Sum(t => t.CategoryTotal);
+                int remaining = specialItem.Amount.Value - Math.Abs(spendSoFar);
+
+                <div class="special-budget-card">
+                    <h5>@(specialItem.Category?.CategoryName ?? "Unnamed Category")</h5>
+                    <table class="special-budget-table">
+                        <tr>
+                            <td>Budget:</td>
+                            <td>
+                                <div class="month-inout-pill" style="background-color: #444444">
+                                    @Helper.FormatCurrency(specialItem.Amount.Value)
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Spent&nbsp;:</td>
+                            <td>
+                                <div class="month-inout-pill" style="background-color: #444444">
+                                    @Helper.FormatCurrency(Math.Abs(spendSoFar))
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Remaining:</td>
+                            <td>
+                                <div class="month-inout-pill" style="background-color: #444444">
+                                    @Helper.FormatCurrency(remaining)
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div id="overlay" class="d-none"></div>
+<div id="popup-import" class="d-none">
+    <h4 class="mb-3">Import File</h4>
+    <form action="/Import" method="post" enctype="multipart/form-data">
+        <div class="form-group mb-3">
+            <label for="transactionFileType">Transaction File Type</label>
+            <select id="transactionFileType" name="transactionFileFormatId" class="form-control">
+                <option>-</option>
+                @foreach (TblImportFileFormat format in Model.GetImportFileFormats())
+                {
+                    <option value="@format.Id">@format.ImportFileFormatName</option>
+                }
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <label for="inputFile">Select File</label>
+            <input id="inputFile" name="inputFile" type="file" class="form-control" />
+        </div>
+        <div class="form-group mb-3">
+            <input type="submit" class="form-control" value="Next" />
+        </div>
+    </form>
+</div> 
+
+<script type="text/javascript" src="/js/dashboard.js"></script>

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTracker.Services", "FinTracker.Services\FinTracker.Services.csproj", "{75A0C172-F291-4BC1-A999-01CAB1359618}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinTracker.Web", "FinTracker.Web\FinTracker.Web.csproj", "{D8193396-2F5C-45E3-A456-60C3E34A114A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{75A0C172-F291-4BC1-A999-01CAB1359618}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75A0C172-F291-4BC1-A999-01CAB1359618}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75A0C172-F291-4BC1-A999-01CAB1359618}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75A0C172-F291-4BC1-A999-01CAB1359618}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8193396-2F5C-45E3-A456-60C3E34A114A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8193396-2F5C-45E3-A456-60C3E34A114A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8193396-2F5C-45E3-A456-60C3E34A114A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8193396-2F5C-45E3-A456-60C3E34A114A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E475159F-40E1-49C5-8035-256EF6AB9614}
+	EndGlobalSection
+EndGlobal

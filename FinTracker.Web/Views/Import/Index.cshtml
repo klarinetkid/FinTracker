@@ -1,0 +1,89 @@
+﻿@model ImportViewModel
+
+@{
+    CategoryViewModel[] categories = new CategoryViewModel().GetCategories();
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between">
+        <h1>Import Data</h1>
+        <div>
+            <button class="btn btn-danger btn-sm" id="btnHideUnselectedTransactions">Hide Unselected Transactions</button>
+        </div>
+    </div>
+    <div class="mb-3"><i>@Model.ImportFileFormat.ImportFileFormatName</i> - @Model.Transactions.Length Rows</div>
+
+    <form action="/Import/SubmitImport" method="post" enctype="multipart/form-data">
+        <table class="table import-transactions-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th style="width:10%">Date</th>
+                    <th style="width:50%">Memo</th>
+                    <th style="width:13%" class="numeric">Amount</th>
+                    <th style="width:13%">Category</th>
+                    <th style="width:0%"></th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @for (int i = 0; i < Model.Transactions.Length; i++)
+                {
+                    TransactionViewModel trans = Model.Transactions[i];
+
+                    <tr @(Helper.NullableBool(trans.AlreadyImported) ? "class=import-row-inactive" : "")>
+                        <td>@(i + 1)</td>
+                        <td>
+                            <input readonly name="transactions[@i][Date]" value="@trans.Date.Value.ToString("yyyy-MM-dd")" class="form-control" />
+                        </td>
+                        <td title="@trans.Memo">
+                            <input readonly name="transactions[@i][Memo]" value="@trans.Memo" class="form-control" />
+                        </td>
+                        <td class="numeric">
+                            <input type="hidden" name="transactions[@i][Amount]" value="@trans.Amount.Value" />
+                            <input readonly value="@Helper.FormatCurrency(trans.Amount.Value)" class="form-control" />
+                        </td>
+                        <td>
+                            <select tabindex="@(10000+(i*2))" name="transactions[@i][CategoryId]" class="form-control @(trans.CategoryId != null ? "autofilled" : "")">
+                                <option>-</option>
+                                @foreach (var cat in categories)
+                                {
+                                    <option value="@cat.Id" selected="@(trans.CategoryId == cat.Id)">@cat.CategoryName</option>
+                                }
+                            </select>
+                        </td>
+                        <td class="import-row-checkboxes-col" style="width:100px;overflow:visible">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="form-check">
+                                        <input id="import-row-@i" type="checkbox" value="true" class="form-check-input import-row-checkbox" name="transactions[@i][ToImport]" @(Helper.NullableBool(trans.AlreadyImported) ? "" : "checked") />
+                                        <label class="form-check-label" for="import-row-@i">
+                                            Import transaction
+                                        </label>
+                                    </div>
+                                    <div class="form-check save-default-group">
+                                        <input tabindex="@(10000+(i*2)+1)" id="save-default-@i" type="checkbox" value="true" class="form-check-input save-default-checkbox" name="transactions[@i][SaveDefaultCategory]" @(Helper.NullableBool(trans.AlreadyImported) ? "disabled" : "") />
+                                        <label class="form-check-label" for="save-default-@i">
+                                            Save default category
+                                        </label>
+                                    </div>
+                                </div>
+                                @if (Helper.NullableBool(trans.AlreadyImported))
+                                {
+                                    <div class="transaction-imported-warn" title="This transaction has already been imported"></div>
+                                }
+                            </div>
+                            
+                            
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+
+        <button class="form-control">Submit</button>
+    </form>
+   
+</div>
+<script type="text/javascript" src="/js/import.js"></script>

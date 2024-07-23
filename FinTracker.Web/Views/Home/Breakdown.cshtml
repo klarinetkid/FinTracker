@@ -1,0 +1,155 @@
+﻿@model BreakdownViewModel
+
+@{
+    ViewData["Title"] = "Breakdown " + Model.Month.ToString("MMMM yyyy");
+}
+
+<div class="container">
+
+
+    @* <h1 class="display-4">Breakdown @Model.Month.ToString("MMMM yyyy")</h1> *@
+    <div>
+
+        <h1 class="display-4">Breakdown @Model.Month.ToString("MMMM yyyy")</h1>
+
+        @if (Model.MonthInOut != null)
+        {
+            <div class="d-flex align-items-center">
+                <div class="dashboard-month-inout">
+                    <div class="dashboard-month-in month-inout-pill">In: @(Helper.FormatCurrency(Model.MonthInOut.MonthIn))</div>
+                    <div class="dashboard-month-out month-inout-pill">Out: @(Helper.FormatCurrency(Model.MonthInOut.MonthOut))</div>
+                    <div class="dashboard-month-net month-inout-pill">Net: @(Helper.FormatCurrency(Model.MonthInOut.MonthIn - Model.MonthInOut.MonthOut))</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div style="height:40px"></div>
+
+    <div class="row">
+        <div class="col-lg-6">
+
+            <h4>Categories</h4>
+
+            <table class="table breakdown-table categorized-table">
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">Category</th>
+                        <th scope="col" class="numeric">Total Spent</th>
+                        <th scope="col" class="numeric">Budget</th>
+                        <th scope="col" class="numeric"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    @{
+                        VwCategoryTotal[] sorted = Model.CategoryTotals.OrderByDescending(t => Math.Abs(t.CategoryTotal)).ToArray();
+                        for (int i = 0; i < sorted.Length; i++)
+                        {
+                            VwCategoryTotal cat = sorted[i];
+                            TblBudgetItem? budget = Model.EffectiveBudgetItems.Where(b => b.CategoryId == cat.CategoryId).FirstOrDefault();
+
+                            <tr data-categoryid="@cat.CategoryId">
+                                <td scope="row">@(i+1)</td>
+                                <td>@cat.CategoryName</td>
+                                <td class="numeric">@Helper.FormatCurrency(cat.CategoryTotal)</td>
+                                @if (budget != null && budget.Amount != null)
+                                {
+                                    int diff = budget.Amount.Value + cat.CategoryTotal;
+                                    decimal deviation = (decimal)diff / budget.Amount.Value * 100;
+
+                                    <td class="numeric">@Helper.FormatCurrency(budget.Amount.Value)</td>
+                                    <td class="numeric">
+                                        
+                                        @if (Helper.NullableBool(budget.IsYearly))
+                                        {
+                                            @* just show pct of whole year for yearly budget items *@
+                                            <span class="text-warning">
+                                                @Math.Abs((decimal)cat.CategoryTotal / budget.Amount.Value * 100).ToString("0.0")%
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="@(diff < 0 ? "text-danger" : "text-success")">
+                                                @(deviation < (decimal)0 ? "+" : "-")@Math.Abs(deviation).ToString("0.0")%
+                                            </span>
+                                        }
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                    <td></td>
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-6">
+
+            <h4>Spending</h4>
+
+            <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+        </div>
+    </div>
+
+    @if (Model.Transactions.Any())
+    {
+        <div style="height:40px"></div>
+
+        <div class="row">
+
+            <h4>Transactions</h4>
+
+            <table class="table categorized-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Date</th>
+                        <th>Memo</th>
+                        <th class="numeric">Amount</th>
+                        <th>Category</th>
+                        <th></th>
+                    </tr>                
+                </thead>
+                <tbody>
+
+                    @{
+                        TblTransaction[] tsorted = Model.Transactions.OrderBy(t => t.Date).ToArray();
+                        for (int i = 0;i < tsorted.Length;i++)
+                        {
+                            VwCategoryTotal? cat = Model.CategoryTotals.Where(t => t.CategoryId == tsorted[i].CategoryId).FirstOrDefault();
+                            <tr class="transaction-row" data-categoryid="@tsorted[i].CategoryId">
+                                <td>@(i+1)</td>
+                                <td title="@tsorted[i].Date.Value.ToString("dddd, MMMM d, yyyy")">@tsorted[i].Date.Value.ToString("yyyy-MM-dd")</td>
+                                <td>@tsorted[i].Memo</td>
+                                <td class="numeric">@Helper.FormatCurrency(tsorted[i].Amount.Value)</td>
+                                <td>@cat?.CategoryName</td>
+                                <td style="text-align:right">
+                                    <div class="d-flex flex-column-reverse align-items-end">
+                                        <div class="transaction-row-edit">
+                                            <img src="/img/Edit_fill.svg" alt="Edit row" width="24" height="24" />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+
+
+                </tbody>
+            </table>
+
+        </div>
+    }
+   
+</>
+
+<script>
+    const year = @Model.Month.Year
+    const month = @Model.Month.Month
+</script>
+<script type="text/javascript" src="/js/breakdown.js"></script>
