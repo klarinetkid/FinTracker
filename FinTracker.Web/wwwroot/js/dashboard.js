@@ -1,12 +1,30 @@
+/*----------------
+    Literals
+----------------*/
+const S_ImportButton = "#importBtn"
+const S_Overlay = "#overlay"
+const S_PopupImport = "#popup-import"
 
-$("#importBtn").on("click", function () {
-    $("#overlay").removeClass("d-none")
-    $("#popup-import").removeClass("d-none")
-})
+/*----------------
+    Listeners
+----------------*/
+$(S_ImportButton).on(Events.Click, showOverlay)
+$(S_Overlay).on(Events.Click, hideOverlay)
 
-$("#overlay").on("click", function () {
-    $("#overlay").addClass("d-none")
-    $("#popup-import").addClass("d-none")
-})
+/*----------------
+    Logic
+----------------*/
+function showOverlay() {
+    toggleOverlay(false)
+}
+
+function hideOverlay() {
+    toggleOverlay(true)
+}
+
+function toggleOverlay(hidden) {
+    $(S_Overlay)[addOrRemoveClass(hidden)](DNONE)
+    $(S_PopupImport)[addOrRemoveClass(hidden)](DNONE)
+}
 
 // TODO: form validation

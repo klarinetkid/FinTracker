@@ -1,36 +1,58 @@
+/*----------------
+    Literals
+----------------*/
+const C_Highlighted = "highlighted"
+const C_Exploded = "exploded"
+
+const S_RowInCategoryTable = ".categorized-table tr"
+const S_RowsWithCategory = (catId) => `${S_RowInCategoryTable}[data-categoryid="${catId}"]`
+const S_RowsWithoutCategory = (catId) => `${S_RowInCategoryTable}:not([data-categoryid="${catId}"])`
+
+const _ChartDataSource = `/Home/BreakdownJson?year=${year}&month=${month}`
+const _ChartContainerId = "chartContainer"
+const _ChartType = "pie"
+
+/*----------------
+    Listeners
+----------------*/
+
+
+
+/*----------------
+    Logic
+----------------*/
 
 function onChartMouseover(e) {
     let catId = e.dataPoint.categoryId
 
     if (e.dataPoint.exploded) return
 
-    $(`.categorized-table tr[data-categoryid="${catId}"]`).addClass("highlighted")
-    $(`.categorized-table tr:not([data-categoryid="${catId}"])`).removeClass("highlighted")
+    $(S_RowsWithCategory(catId)).addClass(C_Highlighted)
+    $(S_RowsWithoutCategory(catId)).removeClass(C_Highlighted)
 }
 
 function dataItemClicked(e) {
     let catId = e.dataPoint.categoryId
-    $(`.categorized-table tr[data-categoryid="${catId}"]`)[e.dataPoint.exploded ? "addClass" : "removeClass"]("exploded")
+
+    $(S_RowsWithCategory(catId))[addOrRemoveClass(e.dataPoint.exploded)](C_Exploded)
 }
 
 function onChartMouseout(e) {
     if (e.dataPoint.exploded) return
 
-    $(".categorized-table tr").removeClass("highlighted")
+    $(S_RowInCategoryTable).removeClass(C_Highlighted)
 }
 
 function clickChartItem(e) {
     console.log(e)
 }
 
-var chart;
 function renderChart(dataPoints) {
-    chart = new CanvasJS.Chart("chartContainer",
+    window.chart = new CanvasJS.Chart(_ChartContainerId,
         {
             data: [
                 {
-
-                    type: "pie",
+                    type: _ChartType,
                     click: dataItemClicked,
                     mousemove: onChartMouseover,
                     mouseout: onChartMouseout,
@@ -39,7 +61,7 @@ function renderChart(dataPoints) {
             ]
         });
 
-    chart.render();
+    window.chart.render();
 }
 
 function totalToDataPoint(total) {
@@ -52,7 +74,7 @@ function totalToDataPoint(total) {
     }
 }
 
-$.getJSON(`/Home/BreakdownJson?year=${year}&month=${month}`, function (data) {
+$.getJSON(_ChartDataSource, function (data) {
 
     let dataPoints = data.filter(d => d.categoryId != 0 && d.categoryTotal <= 0).map(totalToDataPoint)
     renderChart(dataPoints)
