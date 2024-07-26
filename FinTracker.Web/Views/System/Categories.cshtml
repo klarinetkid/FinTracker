@@ -1,0 +1,87 @@
+﻿@model CategoryViewModel[]
+
+@{
+    ViewData["Title"] = "Categories";
+    var sorted = Model.OrderBy(c => c.CategoryName).ToArray();
+}
+
+<div class="container">
+
+    <div class="d-flex justify-content-between">
+        <h1 class="display-4">Categories</h1>
+        <div>
+            <button class="btn btn-danger add-category-row">
+                <img src="/img/Add_round_fill.svg" height="20" />
+                Add category
+            </button>
+            <button class="btn btn-danger add-category-row">
+                <img src="/img/Import_fill.svg" height="20" />
+                Import
+            </button>
+        </div>
+    </div>
+
+    @* <h1>Categories</h1> *@
+
+    <div class="spacer"></div>
+
+    @* <todo> *@
+    <p>
+        Plan for this: fields load readonly. hamburger dropdown for each row (steal from InnovBC admin dashboards)
+        with edit, delete options. clicking edit will make name and colour fields not readonly and
+        show save/cancel buttons.
+    </p>
+    <div class="spacer"></div>
+    @* </todo> *@
+
+    <table class="table system-categories-table" style="width:60%;margin:auto">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Category Name</th>
+                <th style="width:140px">Colour</th>
+                <th style="width:0%">Transactions</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            
+            @for (int i = 0;i < sorted.Length; i++)
+            {
+                CategoryViewModel cat = sorted[i];
+                <tr>
+                    
+                        <td>@(i+1)</td>
+                        <td>
+                        <input type="hidden" name="model[Id]" value="@cat.Id" />
+                            <input class="form-control" name="model[CategoryName]" value="@cat.CategoryName" data-initial="@cat.CategoryName" />
+                        </td>
+                        <td @(cat.Colour != null ? $"style=background:#{cat.Colour}" : "")>
+                            <input class="form-control category-colour-input" name="model[Colour]" value="@cat.Colour" data-initial="@cat.Colour" />
+                            @* <div class="colour-swatch" style="width:30px;height:30px;background:#@cat.Colour" /> *@
+                        </td>
+                        <td>
+                            <input readonly class="form-control transaction-count" value="@cat.TransactionCount" />
+                        </td>
+                        <td>
+                            <button class="btn btn-danger delete-category-btn" data-transactions="@cat.TransactionCount">
+                                <img src="/img/trash-wht.svg" height="20" />
+                            </button>
+                            <button class="btn btn-danger invisible save-category-btn">
+                                <img src="/img/Check_fill.svg" height="20" />
+                            </button>
+                            <button class="btn btn-danger invisible reset-category-btn">
+                                <img src="/img/Close_round_fill.svg" height="20" />
+                            </button>
+                        </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<script type="text/javascript" src="/js/categories.js"></script>

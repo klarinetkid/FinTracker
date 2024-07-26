@@ -21,6 +21,15 @@ body {
   margin-bottom: 60px;
 }
 
+/* global styles: */
+.category-select-width {
+    width: 160px;
+}
+
+.spacer {
+    height: 20px;
+}
+
 
 /************************ 
     dashboard styles
@@ -199,6 +208,14 @@ th.numeric, td.numeric, td.numeric input {
 .transaction-row-edit img {
     vertical-align: middle;
 }
+
+.breakdown-table tr.exploded td {
+    /*text-decoration: underline;*/
+}
+
+.breakdown-table tr {
+    cursor: pointer;
+}
 /*.transaction-row:hover td {
     background-color: #f2f2f2;
 }
@@ -256,4 +273,28 @@ select.autofilled {
 
 table.hide-unselected-transactions tr.import-row-inactive {
     display: none;
+}
+
+
+/************************ 
+    default management styles
+************************/
+
+.defaults-table td {
+    transition: background-color linear 0.1s;
+}
+
+.defaults-table tr.request-loading td {
+    background-color: #ccd9ff;
+}
+
+/************************ 
+    categories management styles
+************************/
+.category-colour-input {
+    width: 90px;
+}
+
+.new-category-row td button {
+    background-color: #c29d30
 }

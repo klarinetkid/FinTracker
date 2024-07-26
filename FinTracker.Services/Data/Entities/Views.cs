@@ -14,9 +14,9 @@ namespace FinTracker.Services.Data.Entities
         [Key] // seems easier to add a rownumber to the view than to deal with keyless entity
         public int RowNumber { get; set; }
         public int CategoryTotal { get; set; }
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; }
-        public string CategoryColour { get; set; }
+        public int? CategoryId { get; set; }
+        public string? CategoryName { get; set; }
+        public string? CategoryColour { get; set; }
         public int Month { get; set; }
         public int Year { get; set; }
         public int? PercentOfMonthlyIncome { get; set; }
