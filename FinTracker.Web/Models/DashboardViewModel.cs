@@ -3,15 +3,13 @@ using FinTracker.Services.Data.Entities;
 
 namespace FinTracker.Web.Models
 {
-    public class DashboardViewModel
+    public class DashboardViewModel : BaseViewModel
     {
         public int Year { get; set; }
         public VwCategoryTotal[] CategoryTotals { get; set; }
         public VwMonthInOut[] MonthInOuts { get; set; }
         public VwYearInOut? YearInOut { get; set; }
         public TblBudgetItem[] SpecialBudgets { get; set; }
-
-        private ApplicationDbContext db = new ApplicationDbContext();
 
         public DashboardViewModel(int year) 
         {

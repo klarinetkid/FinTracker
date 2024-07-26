@@ -13,7 +13,7 @@
     </div>
     <div class="mb-3"><i>@Model.ImportFileFormat.ImportFileFormatName</i> - @Model.Transactions.Length Rows</div>
 
-    <form action="/Import/SubmitImport" method="post" enctype="multipart/form-data">
+    <form action="/Import/SubmitImport" method="post" enctype="multipart/form-data" id="import-form">
         <table class="table import-transactions-table">
             <thead>
                 <tr>

@@ -8,11 +8,15 @@ namespace FinTracker.Web.Controllers
     public class ImportController : Controller
     {
         [HttpPost]
-        public IActionResult Index(IFormFile? inputFile, int? transactionFileFormatId)
+        public IActionResult Index(IFormFile[]? inputFiles, int? transactionFileFormatId)
         {
-            if (inputFile == null || transactionFileFormatId == null) return RedirectToAction("Index", "Home");
+            if (inputFiles == null || transactionFileFormatId == null) return RedirectToAction("Index", "Home");
 
-            ImportViewModel model = new ImportViewModel(inputFile, transactionFileFormatId.Value);
+            ImportViewModel model = new ImportViewModel(transactionFileFormatId.Value);
+            
+            foreach (var inputFile in  inputFiles)
+                model.PrepareImport(inputFile);
+            
             return View(model);
         }
 

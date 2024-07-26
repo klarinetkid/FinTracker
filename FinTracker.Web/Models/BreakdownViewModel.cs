@@ -3,7 +3,7 @@ using FinTracker.Services.Data;
 
 namespace FinTracker.Web.Models
 {
-    public class BreakdownViewModel
+    public class BreakdownViewModel : BaseViewModel
     {
         // needs: transaction totals for the month
         // budget will effective date in that month
@@ -18,21 +18,18 @@ namespace FinTracker.Web.Models
         public BreakdownViewModel(int year, int month)
         {
             Month = new DateTime(year, month, 1);
+            
+            // get totals for month
+            CategoryTotals = db.VwCategoryTotals.Where(t => t.Year == year && t.Month == month).ToArray();
 
-            using (var db = new ApplicationDbContext())
-            {
-                // get totals for month
-                CategoryTotals = db.VwCategoryTotals.Where(t => t.Year == year && t.Month == month).ToArray();
+            // get effective budget items
+            EffectiveBudgetItems = db.GetBudgetItemsForDate(Month).ToArray();
 
-                // get effective budget items
-                EffectiveBudgetItems = db.GetBudgetItemsForDate(Month).ToArray();
+            // get transactions
+            Transactions = db.TblTransactions.Where(t => t.Date != null && t.Date >= Month && t.Date < Month.AddMonths(1)).ToArray();
 
-                // get transactions
-                Transactions = db.TblTransactions.Where(t => t.Date != null && t.Date >= Month && t.Date < Month.AddMonths(1)).ToArray();
-
-                // get month in out
-                MonthInOut = db.VwMonthInOuts.Where(m => m.Year == year && m.Month == month).FirstOrDefault();
-            }
+            // get month in out
+            MonthInOut = db.VwMonthInOuts.Where(m => m.Year == year && m.Month == month).FirstOrDefault();
         }
     }
 }

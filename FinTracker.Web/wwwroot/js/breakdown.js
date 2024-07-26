@@ -5,6 +5,7 @@ const C_Highlighted = "highlighted"
 const C_Exploded = "exploded"
 
 const S_RowInCategoryTable = ".categorized-table tr"
+const S_RowInBreakdownTable = ".breakdown-table tr"
 const S_RowsWithCategory = (catId) => `${S_RowInCategoryTable}[data-categoryid="${catId}"]`
 const S_RowsWithoutCategory = (catId) => `${S_RowInCategoryTable}:not([data-categoryid="${catId}"])`
 
@@ -15,12 +16,43 @@ const _ChartType = "pie"
 /*----------------
     Listeners
 ----------------*/
-
-
+$(S_RowInBreakdownTable).on("mouseenter", onRowMouseenter)
+$(S_RowInBreakdownTable).on("mouseleave", onRowMouseleave)
+$(S_RowInBreakdownTable).on("click", onRowClick)
 
 /*----------------
     Logic
 ----------------*/
+
+function onRowClick(e) {
+    let parentRow = $(e.target).parents(TR)
+    let catId = parentRow.attr("data-categoryid")
+    let newState = !parentRow.hasClass(C_Exploded)
+
+    $(S_RowsWithCategory(catId))[addOrRemoveClass(newState)](C_Exploded)
+    setDataPointExploded(catId, newState)
+}
+
+function onRowMouseenter(e) {
+    let parentRow = $(e.target).parents(TR)
+
+    if (parentRow.hasClass(C_Exploded)) return
+
+    let catId = parentRow.attr("data-categoryid")
+
+    $(S_RowsWithCategory(catId)).addClass(C_Highlighted)
+    //$(S_RowsWithoutCategory(catId)).removeClass(C_Highlighted)
+}
+
+function onRowMouseleave(e) {
+    let parentRow = $(e.target).parents(TR)
+
+    if (parentRow.hasClass(C_Exploded)) return
+
+    let catId = parentRow.attr("data-categoryid")
+
+    $(S_RowsWithCategory(catId)).removeClass(C_Highlighted)
+}
 
 function onChartMouseover(e) {
     let catId = e.dataPoint.categoryId
@@ -73,6 +105,15 @@ function totalToDataPoint(total) {
         label: total.categoryName,
     }
 }
+
+function setDataPointExploded(categoryId, exploded) {
+    for (let i = 0; i < chart.options.data[0].dataPoints.length; i++) 
+        if (chart.options.data[0].dataPoints[i].categoryId == categoryId)
+            chart.options.data[0].dataPoints[i].exploded = exploded
+
+    chart.render()
+}
+
 
 $.getJSON(_ChartDataSource, function (data) {
 

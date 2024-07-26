@@ -8,26 +8,26 @@ using System.Transactions;
 
 namespace FinTracker.Web.Models
 {
-    public class ImportViewModel
+    public class ImportViewModel : BaseViewModel
     {
         public TransactionViewModel[] Transactions { get; set; }
         public TblImportFileFormat ImportFileFormat { get; set; }
 
-        ApplicationDbContext db = new ApplicationDbContext();
-
         public ImportViewModel() { }
-        public ImportViewModel(IFormFile inputFile, int transactionFileFormatId)
+
+        public ImportViewModel(int transactionFileFormatId)
         {
             TblImportFileFormat? format = db.TblImportFileFormats.Find(transactionFileFormatId);
-
             if (format == null) throw new Exception("Format not found");
 
             ImportFileFormat = format;
+        }
 
+        public void PrepareImport(IFormFile inputFile)
+        {
             Transactions = new TransactionFileParser(ImportFileFormat).ParseFile(inputFile);
-
-            FindDefaultCategories();
-            FindAlreadyImportedTransactions();
+            findDefaultCategories();
+            findAlreadyImportedTransactions();
         }
 
         public int ImportTransactions(TransactionViewModel[] transactions)
@@ -50,7 +50,7 @@ namespace FinTracker.Web.Models
             return affectedRows;
         }
 
-        private void FindDefaultCategories()
+        private void findDefaultCategories()
         {
             foreach (TransactionViewModel trans in Transactions)
             {
@@ -59,7 +59,7 @@ namespace FinTracker.Web.Models
             }
         }
 
-        private void FindAlreadyImportedTransactions()
+        private void findAlreadyImportedTransactions()
         {
             foreach (TransactionViewModel trans in Transactions)
             {

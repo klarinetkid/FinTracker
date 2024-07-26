@@ -1,0 +1,53 @@
+﻿@model DefaultCategorizationViewModel[]
+
+@{
+    ViewData["Title"] = "Default Categorizations";
+
+    var categories = new CategoryViewModel().GetCategories();
+}
+
+<h1 class="display-4">Default Categorizations</h1>
+
+<table class="table defaults-table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Memo</th>
+            <th class="category-select-width">Category</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0;i < Model.Length; i++)
+        {
+            DefaultCategorizationViewModel def = Model[i];
+
+            <tr>
+                <td>
+                    @(i+1)
+                </td>
+                <td>
+                    <input class="form-control" type="hidden" value="@def.Id" />
+                    <input readonly class="form-control" value="@def.Memo" />
+                </td>
+                <td>
+                    <select class="form-control update-default-categorization" data-recordid="@def.Id">
+                        @foreach (var cat in categories)
+                        {
+                            <option value="@cat.Id" selected="@(cat.Id == def.CategoryId)">@cat.CategoryName</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-danger">
+                        <img src="/img/trash-wht.svg" height="20" />
+                    </button>
+
+                    <img class="spinner d-none" src="/img/running.gif" height="26" />
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script type="text/javascript" src="/js/defaultCategorization.js"></script>

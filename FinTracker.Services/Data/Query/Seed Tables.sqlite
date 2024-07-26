@@ -7,7 +7,7 @@ insert into TblCategory (Id, CategoryName, Colour) values (4, 'Jazz', '800297');
 insert into TblCategory (Id, CategoryName, Colour) values (5, 'Entertainment', '9bd3cb');
 insert into TblCategory (Id, CategoryName, Colour) values (6, 'Transportation', 'D0B8A8');
 insert into TblCategory (Id, CategoryName, Colour) values (7, 'Travel', 'EEC759');
-insert into TblCategory (Id, CategoryName, Colour) values (8, 'Clopes', 'F19ED2');
+insert into TblCategory (Id, CategoryName, Colour) values (8, 'Smokes', 'F19ED2');
 insert into TblCategory (Id, CategoryName, Colour) values (9, 'Clothes', 'D37676');
 
 delete from TblBudgetItem;

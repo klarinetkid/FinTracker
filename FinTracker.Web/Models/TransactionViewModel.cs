@@ -3,7 +3,7 @@ using FinTracker.Services.Data.Entities;
 
 namespace FinTracker.Web.Models
 {
-    public class TransactionViewModel
+    public class TransactionViewModel : BaseViewModel
     {
         #region properties
         public int? Id { get; set; }
@@ -19,10 +19,6 @@ namespace FinTracker.Web.Models
         public int? ImportJobNumber { get; set; } // TODO
         public bool? SaveDefaultCategory { get; set; }
 
-
-        ApplicationDbContext db = new ApplicationDbContext();
-
-
         public TransactionViewModel() { }
 
         public TblTransaction ToTblTransaction()
@@ -37,6 +33,7 @@ namespace FinTracker.Web.Models
             };
         }
 
+        // TODO: this should be a method of DefaultCategorizationViewModel, for consistency
         public void SaveDefault()
         {
             if (Memo == null || CategoryId == null) return;

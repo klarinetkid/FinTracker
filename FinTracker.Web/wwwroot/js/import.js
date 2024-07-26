@@ -20,7 +20,7 @@ const S_Select = "select"
 $(S_ImportRowCheckbox).on(Events.Change, function (e) {
     let row = $(e.target).parents(TR)
 
-    row[addOrRemoveClass(!e.target.checked)](InactiveTransactionRow)
+    row[addOrRemoveClass(!e.target.checked)](C_InactiveTransactionRow)
     row.find(S_Select).attr(Attrs.Disabled, !e.target.checked)
 
     row.find(S_SaveDefaultCheckbox).attr(Attrs.Disabled, !e.target.checked)
@@ -40,9 +40,19 @@ $(S_ImportForm).on(Events.Submit, function () {
 
     // don't submit this data
     $("." + C_InactiveTransactionRow).find(S_InputsAndSelects).attr(Attrs.Name, EMPTY)
+
+    // fix the names
+    let activeRows = $("tr:not(.import-row-inactive)")
+    for (let i = 1; i < activeRows.length; i++) { // start at 1 to skip header row
+        $(activeRows[i]).find("input, select").map((_, e) => replaceNumberInName(e, i - 1))
+    }
+
 })
 
 /*----------------
     Logic
 ----------------*/
-
+function replaceNumberInName(element, num) {
+    if (element.hasAttribute("name"))
+        element.setAttribute("name", element.getAttribute("name").replace(/[0-9]+/, num))
+}
