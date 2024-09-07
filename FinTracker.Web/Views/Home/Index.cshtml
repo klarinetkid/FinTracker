@@ -19,9 +19,9 @@
     @if (Model.YearInOut != null)
     {
         <div class="dashboard-month-inout">
-            <div class="dashboard-month-in month-inout-pill">In: @(Helper.FormatCurrency(Model.YearInOut.YearIn))</div>
-            <div class="dashboard-month-out month-inout-pill">Out: @(Helper.FormatCurrency(Model.YearInOut.YearOut))</div>
-            <div class="dashboard-month-net month-inout-pill">Net: @(Helper.FormatCurrency(Model.YearInOut.YearIn - Model.YearInOut.YearOut))</div>
+            <div class="dashboard-month-in month-inout-pill">In: @(Helper.FormatCurrency(Model.YearInOut.ValueIn))</div>
+            <div class="dashboard-month-out month-inout-pill">Out: @(Helper.FormatCurrency(Model.YearInOut.ValueOut))</div>
+            <div class="dashboard-month-net month-inout-pill">Net: @(Helper.FormatCurrency(Model.YearInOut.ValueDiff))</div>
         </div>
     }
     
@@ -29,18 +29,18 @@
     
     <div class="row">
         <div class="col-lg-9">
-            @foreach (var yearGroup in Model.CategoryTotals.GroupBy(t => t.Year))
+            @foreach (var yearGroup in Model.CategoryTotals.GroupBy(t => t.Date.Year))
             {
                 int year = yearGroup.Key;
 
-                foreach (var group in yearGroup.GroupBy(t => t.Month))
+                foreach (var group in yearGroup.GroupBy(t => t.Date.Month))
                 {
                     int month = group.Key;
 
                     DateTime monthDate = new DateTime(year, month, 1);
-                    VwMonthInOut? monthInOut = Model.MonthInOuts.Where(m => m.Year == year && m.Month == month).FirstOrDefault();
+                    InOutValues monthInOut = Model.MonthInOuts[month - 1];
 
-                    <div class="row dashboard-month-row" onclick="window.location = '/breakdown/@monthDate.ToString("yyyy/MM")'">
+                    <div class="row dashboard-month-row" onclick="window.location = '/breakdown/@monthDate.ToString("yyyy\\/MM")'">
 
                         <div class="dashboard-month-row-header">
                             <h4>@monthDate.ToString("MMMM yyyy")</h4>
@@ -49,8 +49,8 @@
                             {
                                 <div class="d-flex align-items-center">
                                     <div class="dashboard-month-inout">
-                                        <div class="dashboard-month-in month-inout-pill">In: @(Helper.FormatCurrency(monthInOut.MonthIn))</div>
-                                        <div class="dashboard-month-out month-inout-pill">Out: @(Helper.FormatCurrency(monthInOut.MonthOut))</div>
+                                        <div class="dashboard-month-in month-inout-pill">In: @(Helper.FormatCurrency(monthInOut.ValueIn))</div>
+                                        <div class="dashboard-month-out month-inout-pill">Out: @(Helper.FormatCurrency(monthInOut.ValueOut))</div>
                                     </div>
                                 </div>
                             }
@@ -58,15 +58,15 @@
 
                         <div class="band-holder">
 
-                            @foreach (VwCategoryTotal band in group.Where(t => t.CategoryId != 0).OrderByDescending(t => Math.Abs(t.PercentOfMonthlyIncome ?? 0)))
+                            @foreach (CategoryTotal band in group.Where(t => t.Category != null && t.Category.Id != 0).OrderByDescending(t => Math.Abs(t.PercentOfIncome)))
                             {
-                                if (Math.Abs(band.PercentOfMonthlyIncome ?? 0) > 0)
+                                if (Math.Abs(band.PercentOfIncome) > 0)
                                 {
                                     @* background-color:#@band.CategoryColour *@
                                     @* background:linear-gradient(#@band.CategoryColour, @Helper.AddBrightnessToColour(band.CategoryColour, 80)); *@
-                                    <div class="band" style="width:@Math.Abs(band.PercentOfMonthlyIncome ?? 0)%;background:linear-gradient(#@band.CategoryColour, @Helper.AddBrightnessToColour(band.CategoryColour, 80));">
+                                    <div class="band" style="width:@Math.Abs(band.PercentOfIncome)%;background:linear-gradient(#@band.Category.Colour, @Helper.AddBrightnessToColour(band.Category.Colour ?? "#ff0000", 80));">
                                         <div class="band-tooltip">
-                                            @band.CategoryName: @Helper.FormatCurrency(Math.Abs(band.CategoryTotal)) (@Math.Abs(band.PercentOfMonthlyIncome ?? 0)%)
+                                            @band.Category.CategoryName: @Helper.FormatCurrency(Math.Abs(band.Total)) (@Math.Abs(band.PercentOfIncome).ToString("0.#")%)
                                         </div>
                                     </div>
                                 }
@@ -81,7 +81,7 @@
             {
                 if (specialItem.Amount == null) continue;
 
-                int spendSoFar = Model.CategoryTotals.Where(t => t.CategoryId == specialItem.CategoryId).Sum(t => t.CategoryTotal);
+                int spendSoFar = Model.CategoryTotals.Where(t => t.Category != null && t.Category.Id == specialItem.CategoryId).Sum(t => t.Total);
                 int remaining = specialItem.Amount.Value - Math.Abs(spendSoFar);
 
                 <div class="special-budget-card">

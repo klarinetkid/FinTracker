@@ -4,6 +4,6 @@ namespace FinTracker.Web.Models
 {
     public class BaseViewModel
     {
-        internal ApplicationDbContext db = new();
+        internal ApplicationDbContext db = new(Program.Config.DbPath);
     }
 }

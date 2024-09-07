@@ -9,7 +9,7 @@ const S_RowInBreakdownTable = ".breakdown-table tr"
 const S_RowsWithCategory = (catId) => `${S_RowInCategoryTable}[data-categoryid="${catId}"]`
 const S_RowsWithoutCategory = (catId) => `${S_RowInCategoryTable}:not([data-categoryid="${catId}"])`
 
-const _ChartDataSource = `/Home/BreakdownJson?year=${year}&month=${month}`
+const _ChartDataSource = `/Home/BreakdownJson?year=${year}` + (month > 0 ? `&month=${month}` : "")
 const _ChartContainerId = "chartContainer"
 const _ChartType = "pie"
 
@@ -98,11 +98,11 @@ function renderChart(dataPoints) {
 
 function totalToDataPoint(total) {
     return {
-        y: total.categoryTotal / 100,
-        indexLabel: total.categoryName,
-        color: "#" + total.categoryColour,
-        categoryId: total.categoryId,
-        label: total.categoryName,
+        y: total.total / 100,
+        indexLabel: total.category.categoryName,
+        color: "#" + total.category.colour,
+        categoryId: total.category.id,
+        label: total.category.categoryName,
     }
 }
 
@@ -117,7 +117,7 @@ function setDataPointExploded(categoryId, exploded) {
 
 $.getJSON(_ChartDataSource, function (data) {
 
-    let dataPoints = data.filter(d => d.categoryId != 0 && d.categoryTotal <= 0).map(totalToDataPoint)
+    let dataPoints = data.filter(d => d.category.id != 0 && d.total <= 0).map(totalToDataPoint)
     renderChart(dataPoints)
 
 })

@@ -41,7 +41,7 @@ namespace FinTracker.Web.Models
                     affectedRows++;
 
                     // save default category
-                    if (Helper.NullableBool(transaction.SaveDefaultCategory))
+                    if (transaction.SaveDefaultCategory.IsTrue())
                         transaction.SaveDefault();
                 }
             }

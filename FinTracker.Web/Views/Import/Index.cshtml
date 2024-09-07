@@ -31,7 +31,7 @@
                 {
                     TransactionViewModel trans = Model.Transactions[i];
 
-                    <tr @(Helper.NullableBool(trans.AlreadyImported) ? "class=import-row-inactive" : "")>
+                    <tr @(trans.AlreadyImported.IsTrue() ? "class=import-row-inactive" : "")>
                         <td>@(i + 1)</td>
                         <td>
                             <input readonly name="transactions[@i][Date]" value="@trans.Date.Value.ToString("yyyy-MM-dd")" class="form-control" />
@@ -56,19 +56,19 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <div class="form-check">
-                                        <input id="import-row-@i" type="checkbox" value="true" class="form-check-input import-row-checkbox" name="transactions[@i][ToImport]" @(Helper.NullableBool(trans.AlreadyImported) ? "" : "checked") />
+                                        <input id="import-row-@i" type="checkbox" value="true" class="form-check-input import-row-checkbox" name="transactions[@i][ToImport]" @(trans.AlreadyImported.IsTrue() ? "" : "checked") />
                                         <label class="form-check-label" for="import-row-@i">
                                             Import transaction
                                         </label>
                                     </div>
                                     <div class="form-check save-default-group">
-                                        <input tabindex="@(10000+(i*2)+1)" id="save-default-@i" type="checkbox" value="true" class="form-check-input save-default-checkbox" name="transactions[@i][SaveDefaultCategory]" @(Helper.NullableBool(trans.AlreadyImported) ? "disabled" : "") />
+                                        <input tabindex="@(10000+(i*2)+1)" id="save-default-@i" type="checkbox" value="true" class="form-check-input save-default-checkbox" name="transactions[@i][SaveDefaultCategory]" @(trans.AlreadyImported.IsTrue() ? "disabled" : "") />
                                         <label class="form-check-label" for="save-default-@i">
                                             Save default category
                                         </label>
                                     </div>
                                 </div>
-                                @if (Helper.NullableBool(trans.AlreadyImported))
+                                @if (trans.AlreadyImported.IsTrue())
                                 {
                                     <div class="transaction-imported-warn" title="This transaction has already been imported"></div>
                                 }

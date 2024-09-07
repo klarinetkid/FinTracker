@@ -1,27 +1,26 @@
 ﻿@model BreakdownViewModel
 
 @{
-    ViewData["Title"] = "Breakdown " + Model.Month.ToString("MMMM yyyy");
+    ViewData["Title"] = "Breakdown " + Model.BreakDownDate.ToString("MMMM yyyy");
 }
 
 <div class="container">
 
-
-    @* <h1 class="display-4">Breakdown @Model.Month.ToString("MMMM yyyy")</h1> *@
     <div>
 
-        <h1 class="display-4">Breakdown @Model.Month.ToString("MMMM yyyy")</h1>
+        <h1 class="display-4">Breakdown @Model.BreakDownDate.ToString(Model.Scope == BreakdownScope.Month ? "MMMM yyyy" : "yyyy")</h1>
 
-        @if (Model.MonthInOut != null)
+        @if (Model.InOut != null)
         {
             <div class="d-flex align-items-center">
                 <div class="dashboard-month-inout">
-                    <div class="dashboard-month-in month-inout-pill">In: @(Helper.FormatCurrency(Model.MonthInOut.MonthIn))</div>
-                    <div class="dashboard-month-out month-inout-pill">Out: @(Helper.FormatCurrency(Model.MonthInOut.MonthOut))</div>
-                    <div class="dashboard-month-net month-inout-pill">Net: @(Helper.FormatCurrency(Model.MonthInOut.MonthIn - Model.MonthInOut.MonthOut))</div>
+                    <div class="dashboard-month-in month-inout-pill">In: @(Helper.FormatCurrency(Model.InOut.ValueIn))</div>
+                    <div class="dashboard-month-out month-inout-pill">Out: @(Helper.FormatCurrency(Model.InOut.ValueOut))</div>
+                    <div class="dashboard-month-net month-inout-pill">Net: @(Helper.FormatCurrency(Model.InOut.ValueDiff))</div>
                 </div>
             </div>
         }
+
     </div>
 
     <div style="height:40px"></div>
@@ -37,6 +36,7 @@
                         <th scope="col"></th>
                         <th scope="col">Category</th>
                         <th scope="col" class="numeric">Total Spent</th>
+                        <th scope="col" class="numeric">% of in.</th>
                         <th scope="col" class="numeric">Budget</th>
                         <th scope="col" class="numeric"></th>
                     </tr>
@@ -44,34 +44,40 @@
                 <tbody>
                     
                     @{
-                        VwCategoryTotal[] sorted = Model.CategoryTotals.OrderByDescending(t => Math.Abs(t.CategoryTotal)).ToArray();
+                        CategoryTotal[] sorted = Model.CategoryTotals.OrderByDescending(t => Math.Abs(t.Total)).ToArray();
                         for (int i = 0; i < sorted.Length; i++)
                         {
-                            VwCategoryTotal cat = sorted[i];
-                            TblBudgetItem? budget = Model.EffectiveBudgetItems.Where(b => b.CategoryId == cat.CategoryId).FirstOrDefault();
+                            CategoryTotal cat = sorted[i];
 
-                            <tr data-categoryid="@cat.CategoryId">
+                            TblBudgetItem? budget = null;
+                            if (cat.Category != null)
+                                budget = Model.EffectiveBudgetItems?.Where(b => b.CategoryId == cat.Category.Id).FirstOrDefault();
+
+                            <tr data-categoryid="@(cat.Category?.Id ?? -1)">
                                 <td scope="row">@(i+1)</td>
-                                <td>@cat.CategoryName</td>
-                                <td class="numeric">@Helper.FormatCurrency(cat.CategoryTotal)</td>
+                                <td>@cat.Category?.CategoryName</td>
+                                <td class="numeric">@Helper.FormatCurrency(cat.Total)</td>
+                                <td class="numeric">@cat.PercentOfIncome.ToString("0.#")%</td>
                                 @if (budget != null && budget.Amount != null)
                                 {
-                                    int diff = budget.Amount.Value + cat.CategoryTotal;
-                                    decimal deviation = (decimal)diff / budget.Amount.Value * 100;
+                                    int monthlyBudgetAmount = budget.Amount.Value * (Model.Scope == BreakdownScope.Month ? 1 : DateTime.Now.Month);
 
-                                    <td class="numeric">@Helper.FormatCurrency(budget.Amount.Value)</td>
+                                    <td class="numeric">@Helper.FormatCurrency(budget.IsYearly.IsTrue() ? budget.Amount.Value : monthlyBudgetAmount)</td>
                                     <td class="numeric">
                                         
-                                        @if (Helper.NullableBool(budget.IsYearly))
+                                        @if (budget.IsYearly.IsTrue())
                                         {
                                             @* just show pct of whole year for yearly budget items *@
                                             <span class="text-warning">
-                                                @Math.Abs((decimal)cat.CategoryTotal / budget.Amount.Value * 100).ToString("0.0")%
+                                                @Math.Abs((decimal)cat.Total / budget.Amount.Value * 100).ToString("0.0")%
                                             </span>
                                         }
                                         else
                                         {
-                                            <span class="@(diff < 0 ? "text-danger" : "text-success")">
+                                            int diff = monthlyBudgetAmount + cat.Total;
+                                            decimal deviation = (decimal)diff / monthlyBudgetAmount * 100;
+
+                                            <span class="@(diff < 0 ? "text-danger" : "text-success")" title="@Helper.FormatCurrency(diff)">
                                                 @(deviation < (decimal)0 ? "+" : "-")@Math.Abs(deviation).ToString("0.0")%
                                             </span>
                                         }
@@ -121,13 +127,13 @@
                         TblTransaction[] tsorted = Model.Transactions.OrderBy(t => t.Date).ToArray();
                         for (int i = 0;i < tsorted.Length;i++)
                         {
-                            VwCategoryTotal? cat = Model.CategoryTotals.Where(t => t.CategoryId == tsorted[i].CategoryId).FirstOrDefault();
+                            CategoryTotal? cat = Model.CategoryTotals.Where(t => t.Category != null && t.Category.Id == tsorted[i].CategoryId).FirstOrDefault();
                             <tr class="transaction-row" data-categoryid="@tsorted[i].CategoryId">
                                 <td>@(i+1)</td>
                                 <td title="@tsorted[i].Date.Value.ToString("dddd, MMMM d, yyyy")">@tsorted[i].Date.Value.ToString("yyyy-MM-dd")</td>
                                 <td>@tsorted[i].Memo</td>
                                 <td class="numeric">@Helper.FormatCurrency(tsorted[i].Amount.Value)</td>
-                                <td>@cat?.CategoryName</td>
+                                <td>@cat?.Category.CategoryName</td>
                                 <td style="text-align:right">
                                     <div class="d-flex flex-column-reverse align-items-end">
                                         <div class="transaction-row-edit">
@@ -149,7 +155,7 @@
 </>
 
 <script>
-    const year = @Model.Month.Year
-    const month = @Model.Month.Month
+    const year = @Model.BreakDownDate.Year
+    const month = @(Model.Scope == BreakdownScope.Month ? Model.BreakDownDate.Month : -1)
 </script>
 <script type="text/javascript" src="/js/breakdown.js"></script>

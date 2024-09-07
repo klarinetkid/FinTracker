@@ -66,7 +66,7 @@ namespace FinTracker.Web.Common
             if (Decimal.TryParse(pairs[ImportFileFormat.AmountKey].ToString(), out parsedAmount))
             {
                 model.Amount = (int)Math.Floor(parsedAmount * 100);
-                if (Helper.NullableBool(ImportFileFormat.InvertAmounts)) model.Amount *= -1;
+                if (ImportFileFormat.InvertAmounts) model.Amount *= -1;
             }
 
             // format memo

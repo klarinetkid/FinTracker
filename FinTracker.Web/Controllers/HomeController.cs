@@ -10,8 +10,6 @@ namespace FinTracker.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        private ApplicationDbContext db = new ApplicationDbContext();
-
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
@@ -24,16 +22,33 @@ namespace FinTracker.Web.Controllers
             return View(model);
         }
 
-        [Route("breakdown/{year}/{month}")]
-        public IActionResult Breakdown(int year, int month)
+        [Route("breakdown/{year}/{month?}")]
+        public IActionResult Breakdown(int year, int? month)
         {
-            BreakdownViewModel model = new BreakdownViewModel(year, month);
+            BreakdownViewModel model = new BreakdownViewModel(); 
+            if (month != null)
+            {
+                model.GetMonthBreakdown(year, month.Value);
+            }
+            else
+            {
+                model.GetYearBreakdown(year);
+            }
             return View(model);
         }
-        public IActionResult BreakdownJson(int year, int month)
+
+        public IActionResult BreakdownJson(int year, int? month)
         {
-            BreakdownViewModel model = new BreakdownViewModel(year, month);
-            return Json(model.CategoryTotals.OrderByDescending(t => Math.Abs(t.CategoryTotal)));
+            BreakdownViewModel model = new BreakdownViewModel();
+            if (month != null)
+            {
+                model.GetMonthBreakdown(year, month.Value);
+            }
+            else
+            {
+                model.GetYearBreakdown(year);
+            }
+            return Json(model.CategoryTotals.OrderByDescending(t => Math.Abs(t.Total)));
         }
 
         //[HttpGet]

@@ -20,10 +20,18 @@ namespace FinTracker.Web.Common
         public static string FormatCurrency(int currency) 
         {
             string ret = (currency < 0 ? "-" : "") + ((decimal)Math.Abs(currency) / 100).ToString("C2");
-            return Program.DemoMode ? Regex.Replace(ret, "[0-9]", "X") : ret;
+            return (Program.Config?.IsDemoMode).IsTrue() ? Regex.Replace(ret, "[0-9]", "X") : ret;
         }
 
-        public static bool NullableBool(bool? value)
+        //public static bool NullableBool(bool? value)
+        //{
+            
+        //}
+    }
+
+    public static class Extensions
+    {
+        public static bool IsTrue(this bool? value)
         {
             return value != null && value.Value;
         }

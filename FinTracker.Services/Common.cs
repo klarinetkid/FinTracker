@@ -1,0 +1,37 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using FinTracker.Services.Data.Entities;
+
+namespace FinTracker.Services
+{
+    public class CategoryTotal
+    {
+        public int Total { get; set; }
+        public float PercentOfIncome { get; set; }
+        public DateTime Date { get; set; }
+        public TblCategory? Category { get; set; }
+    }
+
+    public class InOutValues
+    {
+        public int ValueIn { get; set; }
+        public int ValueOut { get; set; }
+
+        public InOutValues(int valueIn, int valueOut)
+        {
+            ValueIn = valueIn;
+            ValueOut = valueOut;
+        } 
+
+        public int ValueDiff
+        {
+            get
+            {
+                return ValueIn - ValueOut;
+            }
+        }
+    }
+}
