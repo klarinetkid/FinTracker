@@ -1,14 +1,14 @@
 ﻿@model BreakdownViewModel
 
 @{
-    ViewData["Title"] = "Breakdown " + Model.BreakDownDate.ToString("MMMM yyyy");
+    ViewData["Title"] = "Breakdown " + Model.BreakdownRangeStart.ToString("MMMM yyyy");
 }
 
 <div class="container">
 
     <div>
 
-        <h1 class="display-4">Breakdown @Model.BreakDownDate.ToString(Model.Scope == BreakdownScope.Month ? "MMMM yyyy" : "yyyy")</h1>
+        <h1 class="display-4">Breakdown @Model.TitleDate</h1>
 
         @if (Model.InOut != null)
         {
@@ -30,6 +30,12 @@
 
             <h4>Categories</h4>
 
+            @{
+                DateTime budgetEnd = DateTime.Now < Model.BreakdownRangeEnd ? DateTime.Now : Model.BreakdownRangeEnd;
+                int effectiveBudgetDays = (budgetEnd - Model.BreakdownRangeStart).Days;
+                double budgetFactor = 12.0 * effectiveBudgetDays / 365.0; // TODO: leap year?
+            }
+
             <table class="table breakdown-table categorized-table">
                 <thead>
                     <tr>
@@ -37,7 +43,7 @@
                         <th scope="col">Category</th>
                         <th scope="col" class="numeric">Total Spent</th>
                         <th scope="col" class="numeric">% of in.</th>
-                        <th scope="col" class="numeric">Budget</th>
+                        <th scope="col" class="numeric" title="Effective days: @effectiveBudgetDays">Budget</th>
                         <th scope="col" class="numeric"></th>
                     </tr>
                 </thead>
@@ -55,12 +61,12 @@
 
                             <tr data-categoryid="@(cat.Category?.Id ?? -1)">
                                 <td scope="row">@(i+1)</td>
-                                <td>@cat.Category?.CategoryName</td>
+                                <td>@(cat.Category?.CategoryName ?? "(uncategorized)")</td>
                                 <td class="numeric">@Helper.FormatCurrency(cat.Total)</td>
                                 <td class="numeric">@cat.PercentOfIncome.ToString("0.#")%</td>
                                 @if (budget != null && budget.Amount != null)
                                 {
-                                    int monthlyBudgetAmount = budget.Amount.Value * (Model.Scope == BreakdownScope.Month ? 1 : DateTime.Now.Month);
+                                    int monthlyBudgetAmount = (int)Math.Floor(budget.Amount.Value * budgetFactor);
 
                                     <td class="numeric">@Helper.FormatCurrency(budget.IsYearly.IsTrue() ? budget.Amount.Value : monthlyBudgetAmount)</td>
                                     <td class="numeric">
@@ -78,6 +84,7 @@
                                             decimal deviation = (decimal)diff / monthlyBudgetAmount * 100;
 
                                             <span class="@(diff < 0 ? "text-danger" : "text-success")" title="@Helper.FormatCurrency(diff)">
+                                                <span class="d-none">raw budget: @budget.Amount.Value</span>
                                                 @(deviation < (decimal)0 ? "+" : "-")@Math.Abs(deviation).ToString("0.0")%
                                             </span>
                                         }
@@ -128,11 +135,11 @@
                         for (int i = 0;i < tsorted.Length;i++)
                         {
                             CategoryTotal? cat = Model.CategoryTotals.Where(t => t.Category != null && t.Category.Id == tsorted[i].CategoryId).FirstOrDefault();
-                            <tr class="transaction-row" data-categoryid="@tsorted[i].CategoryId">
+                            <tr class="transaction-row" data-categoryid="@(tsorted[i].CategoryId ?? -1)">
                                 <td>@(i+1)</td>
-                                <td title="@tsorted[i].Date.Value.ToString("dddd, MMMM d, yyyy")">@tsorted[i].Date.Value.ToString("yyyy-MM-dd")</td>
+                                <td title="@tsorted[i].Date?.ToString("dddd, MMMM d, yyyy")">@tsorted[i].Date?.ToString("yyyy-MM-dd")</td>
                                 <td>@tsorted[i].Memo</td>
-                                <td class="numeric">@Helper.FormatCurrency(tsorted[i].Amount.Value)</td>
+                                <td class="numeric">@(tsorted[i].Amount != null ? Helper.FormatCurrency(tsorted[i].Amount.Value) : "")</td>
                                 <td>@cat?.Category.CategoryName</td>
                                 <td style="text-align:right">
                                     <div class="d-flex flex-column-reverse align-items-end">
@@ -155,7 +162,7 @@
 </>
 
 <script>
-    const year = @Model.BreakDownDate.Year
-    const month = @(Model.Scope == BreakdownScope.Month ? Model.BreakDownDate.Month : -1)
+    const rangeStart = "@(Model.BreakdownRangeStart.ToString("yyyy-MM-dd"))"
+    const rangeEnd = "@(Model.BreakdownRangeEnd.ToString("yyyy-MM-dd"))"
 </script>
 <script type="text/javascript" src="/js/breakdown.js"></script>

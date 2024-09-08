@@ -1,111 +1,75 @@
 /*----------------
     Literals
 ----------------*/
-const C_Highlighted = "highlighted"
-const C_Exploded = "exploded"
+const highlightedClassName = "highlighted"
+const explodedClassName = "exploded"
+const categoryIdDOMProperty = "data-categoryid"
 
-const S_RowInCategoryTable = ".categorized-table tr"
-const S_RowInBreakdownTable = ".breakdown-table tr"
-const S_RowsWithCategory = (catId) => `${S_RowInCategoryTable}[data-categoryid="${catId}"]`
-const S_RowsWithoutCategory = (catId) => `${S_RowInCategoryTable}:not([data-categoryid="${catId}"])`
+const rowInCategoryTable = ".categorized-table tr"
+const rowInBreakdownTable = ".breakdown-table tr"
+const selectRowsWithCategory = (catId) => `${rowInCategoryTable}[data-categoryid="${catId}"]`
+const selectRowsWithoutCategory = (catId) => `${rowInCategoryTable}:not([data-categoryid="${catId}"])`
 
-const _ChartDataSource = `/Home/BreakdownJson?year=${year}` + (month > 0 ? `&month=${month}` : "")
-const _ChartContainerId = "chartContainer"
-const _ChartType = "pie"
 
 /*----------------
     Listeners
 ----------------*/
-$(S_RowInBreakdownTable).on("mouseenter", onRowMouseenter)
-$(S_RowInBreakdownTable).on("mouseleave", onRowMouseleave)
-$(S_RowInBreakdownTable).on("click", onRowClick)
+$(rowInBreakdownTable).on("mouseenter", onCategoryRowMouseenter)
+$(rowInBreakdownTable).on("mouseleave", onCategoryRowMouseleave)
+$(rowInBreakdownTable).on("click", onCategoryRowClick)
 
 /*----------------
     Logic
 ----------------*/
 
-function onRowClick(e) {
+function onCategoryRowClick(e) {
     let parentRow = $(e.target).parents(TR)
-    let catId = parentRow.attr("data-categoryid")
-    let newState = !parentRow.hasClass(C_Exploded)
+    let catId = parentRow.attr(categoryIdDOMProperty)
+    let newState = !parentRow.hasClass(explodedClassName)
 
-    $(S_RowsWithCategory(catId))[addOrRemoveClass(newState)](C_Exploded)
+    $(selectRowsWithCategory(catId))[addOrRemoveClass(newState)](explodedClassName)
     setDataPointExploded(catId, newState)
 }
-
-function onRowMouseenter(e) {
+function onCategoryRowMouseenter(e) {
     let parentRow = $(e.target).parents(TR)
 
-    if (parentRow.hasClass(C_Exploded)) return
+    if (parentRow.hasClass(explodedClassName)) return
 
-    let catId = parentRow.attr("data-categoryid")
+    let catId = parentRow.attr(categoryIdDOMProperty)
 
-    $(S_RowsWithCategory(catId)).addClass(C_Highlighted)
-    //$(S_RowsWithoutCategory(catId)).removeClass(C_Highlighted)
+    $(selectRowsWithCategory(catId)).addClass(highlightedClassName)
 }
-
-function onRowMouseleave(e) {
+function onCategoryRowMouseleave(e) {
     let parentRow = $(e.target).parents(TR)
 
-    if (parentRow.hasClass(C_Exploded)) return
+    if (parentRow.hasClass(explodedClassName)) return
 
-    let catId = parentRow.attr("data-categoryid")
+    let catId = parentRow.attr(categoryIdDOMProperty)
 
-    $(S_RowsWithCategory(catId)).removeClass(C_Highlighted)
+    $(selectRowsWithCategory(catId)).removeClass(highlightedClassName)
 }
 
-function onChartMouseover(e) {
+function onChartSliceMouseover(e) {
     let catId = e.dataPoint.categoryId
 
     if (e.dataPoint.exploded) return
 
-    $(S_RowsWithCategory(catId)).addClass(C_Highlighted)
-    $(S_RowsWithoutCategory(catId)).removeClass(C_Highlighted)
+    $(selectRowsWithCategory(catId)).addClass(highlightedClassName)
+    $(selectRowsWithoutCategory(catId)).removeClass(highlightedClassName)
 }
-
-function dataItemClicked(e) {
+function onChartSliceClicked(e) {
     let catId = e.dataPoint.categoryId
 
-    $(S_RowsWithCategory(catId))[addOrRemoveClass(e.dataPoint.exploded)](C_Exploded)
+    $(selectRowsWithCategory(catId))[addOrRemoveClass(e.dataPoint.exploded)](explodedClassName)
 }
-
-function onChartMouseout(e) {
+function onChartSliceMouseout(e) {
     if (e.dataPoint.exploded) return
 
-    $(S_RowInCategoryTable).removeClass(C_Highlighted)
+    $(rowInCategoryTable).removeClass(highlightedClassName)
 }
 
-function clickChartItem(e) {
-    console.log(e)
-}
 
-function renderChart(dataPoints) {
-    window.chart = new CanvasJS.Chart(_ChartContainerId,
-        {
-            data: [
-                {
-                    type: _ChartType,
-                    click: dataItemClicked,
-                    mousemove: onChartMouseover,
-                    mouseout: onChartMouseout,
-                    dataPoints: dataPoints
-                }
-            ]
-        });
-
-    window.chart.render();
-}
-
-function totalToDataPoint(total) {
-    return {
-        y: total.total / 100,
-        indexLabel: total.category.categoryName,
-        color: "#" + total.category.colour,
-        categoryId: total.category.id,
-        label: total.category.categoryName,
-    }
-}
-
+// set category exploded in chart and render
 function setDataPointExploded(categoryId, exploded) {
     for (let i = 0; i < chart.options.data[0].dataPoints.length; i++) 
         if (chart.options.data[0].dataPoints[i].categoryId == categoryId)
@@ -114,10 +78,28 @@ function setDataPointExploded(categoryId, exploded) {
     chart.render()
 }
 
+// fetch data and render chart
+$.getJSON(`/Home/BreakdownJson?start=${rangeStart}&end=${rangeEnd}`, function (data) {
 
-$.getJSON(_ChartDataSource, function (data) {
+    let dataPoints = data.filter(d => d.category != null && d.category.id != 0 && d.total <= 0).map((total) => {
+        return {
+            y: total.total / 100,
+            indexLabel: total.category.categoryName,
+            color: "#" + total.category.colour,
+            categoryId: total.category.id,
+            label: total.category.categoryName,
+        }
+    })
 
-    let dataPoints = data.filter(d => d.category.id != 0 && d.total <= 0).map(totalToDataPoint)
-    renderChart(dataPoints)
+    window.chart = new CanvasJS.Chart("chartContainer", {
+        data: [{
+            type: "pie",
+            click: onChartSliceClicked,
+            mousemove: onChartSliceMouseover,
+            mouseout: onChartSliceMouseout,
+            dataPoints: dataPoints
+        }]
+    });
 
+    window.chart.render()
 })

@@ -21,13 +21,13 @@ function addOrRemoveClass(value) {
     return value ? "addClass" : "removeClass"
 }
 
-function isFormValid(formSelector) {
+//function isFormValid(formSelector) {
 
-    const C_RequiredField = ".form-required"
-    const S_RequiredFields = `input${C_RequiredField}, select${C_RequiredField}`
+//    const C_RequiredField = ".form-required"
+//    const S_RequiredFields = `input${C_RequiredField}, select${C_RequiredField}`
 
-    return $(formSelector).find(S_RequiredFields).filter((i, e) => !e.value).length === 0
-}
+//    return $(formSelector).find(S_RequiredFields).filter((i, e) => !e.value).length === 0
+//}
 
 function collectFormData(target) {
     let fd = new FormData()

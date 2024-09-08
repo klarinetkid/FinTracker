@@ -8,12 +8,12 @@ namespace FinTracker.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        //private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+        //public HomeController(ILogger<HomeController> logger)
+        //{
+        //    //_logger = logger;
+        //}
 
         public IActionResult Index(int? y)
         {
@@ -25,44 +25,24 @@ namespace FinTracker.Web.Controllers
         [Route("breakdown/{year}/{month?}")]
         public IActionResult Breakdown(int year, int? month)
         {
-            BreakdownViewModel model = new BreakdownViewModel(); 
-            if (month != null)
-            {
-                model.GetMonthBreakdown(year, month.Value);
-            }
-            else
-            {
-                model.GetYearBreakdown(year);
-            }
+            DateTime rangeStart = new DateTime(year, month ?? 1, 1);
+            DateTime rangeEnd = month != null ? rangeStart.AddMonths(1) : rangeStart.AddYears(1);
+            BreakdownViewModel model = new BreakdownViewModel(rangeStart, rangeEnd);
             return View(model);
         }
 
-        public IActionResult BreakdownJson(int year, int? month)
+        public IActionResult BreakdownJson(DateTime start, DateTime end)
         {
-            BreakdownViewModel model = new BreakdownViewModel();
-            if (month != null)
-            {
-                model.GetMonthBreakdown(year, month.Value);
-            }
-            else
-            {
-                model.GetYearBreakdown(year);
-            }
+            BreakdownViewModel model = new BreakdownViewModel(start, end);
             return Json(model.CategoryTotals.OrderByDescending(t => Math.Abs(t.Total)));
         }
 
-        //[HttpGet]
-        
-
-        //public IActionResult Privacy()
+        //public IActionResult BreakdownJson(int year, int month = -1)
         //{
-        //    return View();
-        //}
-
-        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        //public IActionResult Error()
-        //{
-        //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        //    DateTime rangeStart = new DateTime(year, month > 0 ? month : 1, 1);
+        //    DateTime rangeEnd = month > 0 ? rangeStart.AddMonths(1) : rangeStart.AddYears(1);
+        //    BreakdownViewModel model = new BreakdownViewModel(rangeStart, rangeEnd);
+        //    return View(model);
         //}
     }
 }

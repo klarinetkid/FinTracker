@@ -36,11 +36,11 @@ namespace FinTracker.Services.Data
 
         #region procedures
 
-        // note this is <=or start date, > for endDate so
+        // note this is >= rangeStart but < rangeEnd so
         // end date is startDate.AddMonths(1) for entire month
-        public IQueryable<TblTransaction> TransactionsInRange(DateTime startDate, DateTime endDate)
+        public IQueryable<TblTransaction> TransactionsInRange(DateTime rangeStart, DateTime rangeEnd)
         {
-            return TblTransactions.Where(t => t.Date != null && t.Date.Value >= startDate && t.Date.Value < endDate);
+            return TblTransactions.Where(t => t.Date != null && t.Date.Value >= rangeStart && t.Date.Value < rangeEnd);
         }
 
         public IEnumerable<TblBudgetItem> GetBudgetItemsForDate(DateTime date)
@@ -55,17 +55,17 @@ namespace FinTracker.Services.Data
             return result;
         }
         
-        public CategoryTotal[] GetCategoryTotals(DateTime startDate, DateTime endDate)
+        public CategoryTotal[] GetCategoryTotals(DateTime rangeStart, DateTime rangeEnd)
         {
             // TODO: this reserved catID should be a constant somewhere
-            int periodIncome = TransactionsInRange(startDate, endDate).Where(t => t.CategoryId == IncomeCategoryId).Sum(t => t.Amount) ?? 0;
+            int periodIncome = TransactionsInRange(rangeStart, rangeEnd).Where(t => t.CategoryId == IncomeCategoryId).Sum(t => t.Amount) ?? 0;
 
-            return TransactionsInRange(startDate, endDate).Include(t => t.Category).GroupBy(t => t.Category)
+            return TransactionsInRange(rangeStart, rangeEnd).Include(t => t.Category).GroupBy(t => t.Category)
                 .Select((g) => new CategoryTotal
                 {
                     Total = g.Sum(t => t.Amount) ?? 0,
                     Category = g.Key,
-                    Date = startDate,
+                    Date = rangeStart,
                     PercentOfIncome = (float)(g.Sum(t => t.Amount) ?? 0) / periodIncome * 100
                 }).ToArray();
         }
@@ -75,9 +75,9 @@ namespace FinTracker.Services.Data
             return TblTransactions.Where(t => t.Date == ts.Date && t.Memo == ts.Memo && t.Amount == ts.Amount).Any();
         }
 
-        public InOutValues GetInOut(DateTime startDate, DateTime endDate)
+        public InOutValues GetInOut(DateTime rangeStart, DateTime rangeEnd)
         {
-            IQueryable<TblTransaction> transactions = TransactionsInRange(startDate, endDate);
+            IQueryable<TblTransaction> transactions = TransactionsInRange(rangeStart, rangeEnd);
             int? pos = transactions.Where(t => t.Amount > 0).Sum(t => t.Amount);
             int? neg = transactions.Where(t => t.Amount < 0).Sum(t => t.Amount);
             return new InOutValues(pos ?? 0, Math.Abs(neg ?? 0));

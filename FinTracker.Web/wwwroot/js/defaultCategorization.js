@@ -1,20 +1,21 @@
 /*----------------
     Literals
 ----------------*/
-const S_UpdateDefaultCatSelect = ".update-default-categorization"
-const A_RecordId = "data-recordid"
-const S_Spinner = ".spinner"
-const C_RequestLoading = "request-loading"
+const updateDefaultCatSelectSelector = ".update-default-categorization"
+const recordIdAttr = "data-recordid"
+const spinnerSelector = ".spinner"
+const requestLoadingClassName = "request-loading"
 
-const M_Id = "model[Id]"
-const M_CategoryId = "model[CategoryId]"
+const modelIdAttr = "model[Id]"
+const modelCategoryIdAttr = "model[CategoryId]"
 
-const _ItemEndpoint = "/Defaults/item"
+const itemEndpoint = "/Defaults/item"
+
 
 /*----------------
     Listeners
 ----------------*/
-$(S_UpdateDefaultCatSelect).on(Events.Change, updateCategorization)
+$(updateDefaultCatSelectSelector).on(Events.Change, updateCategorization)
 
 
 /*----------------
@@ -22,17 +23,17 @@ $(S_UpdateDefaultCatSelect).on(Events.Change, updateCategorization)
 ----------------*/
 function updateCategorization(e) {
 
-    let recordId = e.target.getAttribute(A_RecordId)
+    let recordId = e.target.getAttribute(recordIdAttr)
     let categoryId = e.target.value
 
     let fd = new FormData();
-    fd.append(M_Id, recordId)
-    fd.append(M_CategoryId, categoryId)
+    fd.append(modelIdAttr, recordId)
+    fd.append(modelCategoryIdAttr, categoryId)
 
     toggleLoading(e.target, true)
 
     $.ajax({
-        url: _ItemEndpoint,
+        url: itemEndpoint,
         data: fd,
         method: HttpMethod.PATCH,
         contentType: false,
@@ -45,10 +46,6 @@ function updateCategorization(e) {
     })
 }
 
-//function toggleSpinner(target, hidden) {
-//    $(target).parents(TR).find(S_Spinner)[addOrRemoveClass(hidden)](DNONE)
-//}
-
 function toggleLoading(target, loading) {
-    $(target).parents(TR)[addOrRemoveClass(loading)](C_RequestLoading)
+    $(target).parents(TR)[addOrRemoveClass(loading)](requestLoadingClassName)
 }

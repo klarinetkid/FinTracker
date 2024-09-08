@@ -6,70 +6,52 @@ namespace FinTracker.Web.Models
 {
     public class BreakdownViewModel : BaseViewModel
     {
-        // needs: transaction totals for the month
-        // budget will be effective date in that month
-        public BreakdownScope Scope { get; set; }
+        public DateTime BreakdownRangeStart { get; set; }
+        public DateTime BreakdownRangeEnd { get; set; }
 
-        public DateTime BreakDownDate { get; set; }
-        public CategoryTotal[]? CategoryTotals { get; set; }
-        public TblBudgetItem[]? EffectiveBudgetItems { get; set; }
+        public CategoryTotal[] CategoryTotals { get; set; }
+        public TblBudgetItem[] EffectiveBudgetItems { get; set; }
+        public TblTransaction[] Transactions { get; set; }
+        public InOutValues InOut { get; set; }
 
-        public TblTransaction[]? Transactions { get; set; }
-
-        //public VwMonthInOut? MonthInOut { get; set; }
-        //public VwYearInOut? YearInOut { get; set; }
-
-        public InOutValues? InOut { get; set; }
-
-        // TODO: don't need two constuctors, now that all these methods just use start/end date
-        // only difference is the label, can do if start.month == end.month, show month
-
-        public void GetYearBreakdown(int year)
+        public string TitleDate
         {
-            Scope = BreakdownScope.Year;
-            BreakDownDate = new DateTime(year, 1, 1);
+            get
+            {
+                // possible values:
+                //      January 2024 (whole month)
+                //      Year 2024 (whole year)
+                //      January - March 2024 (months in the same year)
+                //      November 2023 - February 2024
 
-            CategoryTotals = db.GetCategoryTotals(BreakDownDate, BreakDownDate.AddYears(1));
-
-            DateTime yearLastDate = BreakDownDate.AddYears(1);
-            EffectiveBudgetItems = db.GetBudgetItemsForDate(yearLastDate).ToArray();
-            Transactions = db.TransactionsInRange(BreakDownDate, yearLastDate).ToArray();
-
-            InOut = db.GetInOut(BreakDownDate, yearLastDate);
+                if (BreakdownRangeEnd == BreakdownRangeStart.AddMonths(1))
+                    return BreakdownRangeStart.ToString("MMMM yyyy");
+                else if (BreakdownRangeEnd == BreakdownRangeStart.AddYears(1))
+                    return "Year " + BreakdownRangeStart.ToString("yyyy");
+                else
+                {
+                    if (BreakdownRangeStart.Year == BreakdownRangeEnd.Year)
+                    {
+                        return BreakdownRangeStart.ToString("MMMM") + " - " +
+                            BreakdownRangeEnd.AddDays(-1).ToString("MMMM yyyy");
+                    }
+                    else
+                    {
+                        return BreakdownRangeStart.ToString("MMMM yyyy") + " - " +
+                            BreakdownRangeEnd.AddDays(-1).ToString("MMMM yyyy");
+                    }
+                }
+            }
         }
 
-        public void GetMonthBreakdown(int year, int month)
+        public BreakdownViewModel(DateTime rangeStart, DateTime rangeEnd)
         {
-            Scope = BreakdownScope.Month;
-            BreakDownDate = new DateTime(year, month, 1);
-            CategoryTotals = db.GetCategoryTotals(BreakDownDate, BreakDownDate.AddMonths(1));
-            EffectiveBudgetItems = db.GetBudgetItemsForDate(BreakDownDate).ToArray();
-            Transactions = db.TransactionsInRange(BreakDownDate, BreakDownDate.AddMonths(1)).ToArray();
-            InOut = db.GetInOut(BreakDownDate, BreakDownDate.AddMonths(1));
+            BreakdownRangeStart = rangeStart;
+            BreakdownRangeEnd = rangeEnd;
+            CategoryTotals = db.GetCategoryTotals(BreakdownRangeStart, BreakdownRangeEnd);
+            EffectiveBudgetItems = db.GetBudgetItemsForDate(BreakdownRangeEnd).ToArray();
+            Transactions = db.TransactionsInRange(BreakdownRangeStart, BreakdownRangeEnd).ToArray();
+            InOut = db.GetInOut(BreakdownRangeStart, BreakdownRangeEnd);
         }
-
-        //public BreakdownViewModel(int year, int? month)
-        //{
-        //    Month = new DateTime(year, month ?? 1, 1);
-
-        //    Scope = BreakdownScope.Month;
-
-        //    // get totals for month
-        //    CategoryTotals = db.VwCategoryTotals.Where(t => t.Year == year && (month == null || t.Month == month.Value)).ToArray();
-
-        //    // get effective budget items
-        //    EffectiveBudgetItems = db.GetBudgetItemsForDate(Month).ToArray();
-
-        //    // get transactions
-        //    Transactions = db.TblTransactions.Where(t => t.Date != null && t.Date >= Month && t.Date < Month.AddMonths(1)).ToArray();
-
-        //    // get month in out
-        //    MonthInOut = db.VwMonthInOuts.Where(m => m.Year == year && (month == null || m.Month == month.Value)).FirstOrDefault();
-        //}
-    }
-
-    public enum BreakdownScope
-    {
-        None, Month, Year
     }
 }

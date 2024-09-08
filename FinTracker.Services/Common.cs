@@ -19,13 +19,6 @@ namespace FinTracker.Services
     {
         public int ValueIn { get; set; }
         public int ValueOut { get; set; }
-
-        public InOutValues(int valueIn, int valueOut)
-        {
-            ValueIn = valueIn;
-            ValueOut = valueOut;
-        } 
-
         public int ValueDiff
         {
             get
@@ -33,5 +26,11 @@ namespace FinTracker.Services
                 return ValueIn - ValueOut;
             }
         }
+        public InOutValues(int valueIn, int valueOut)
+        {
+            ValueIn = valueIn;
+            ValueOut = valueOut;
+        } 
+
     }
 }

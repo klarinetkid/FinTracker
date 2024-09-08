@@ -1,45 +1,44 @@
 /*----------------
     Literals
 ----------------*/
-const C_Invisible = "invisible"
-const C_NewCategoryRow = "new-category-row"
+const invisibleClassName = "invisible"
+const newCategoryRowClassName = "new-category-row"
 
-const A_InitialValue = "data-initial"
-const S_HasInitialValue = `input[${A_InitialValue}]`
+const initialValueAttr = "data-initial"
+const hasInitialValueSelector = `input[${initialValueAttr}]`
 
-const S_CategoriesTable = ".system-categories-table"
-const S_SaveCategoryButton = ".save-category-btn"
-const S_ColourInput = ".category-colour-input"
-const S_ResetCategoryButton = ".reset-category-btn"
-const S_Input = "input"
-const S_DeleteCategoryButton = ".delete-category-btn"
-const S_AddCategoryButton = ".add-category-row"
+const categoriesTableSelector = ".system-categories-table"
+const saveCategoryButtonSelector = ".save-category-btn"
+const colourInputSelector = ".category-colour-input"
+const resetCategoryButtonSelector = ".reset-category-btn"
+const deleteCategoryButtonSelector = ".delete-category-btn"
+const addCategoryButtonSelector = ".add-category-row"
 
-const _itemEndpoint = "/categories/item"
+const itemEndpoint = "/categories/item"
 
 /*----------------
     Listeners
 ----------------*/
 
 // show save/cancel buttons
-$(S_CategoriesTable).on([Events.Change, Events.Keyup].join(', '), S_Input, showSaveCancelBtns)
+$(categoriesTableSelector).on([Events.Change, Events.Keyup].join(', '), "input", showSaveCancelBtns)
 
 // preview colour input
-$(S_CategoriesTable).on([Events.Change, Events.Keyup].join(', '), S_ColourInput, showColour)
+$(categoriesTableSelector).on([Events.Change, Events.Keyup].join(', '), colourInputSelector, showColour)
 
 // add new row
-$(S_AddCategoryButton).on(Events.Click, addNewRow)
+$(addCategoryButtonSelector).on(Events.Click, addNewRow)
 
 // item save/cancel/delete
-$(S_CategoriesTable).on(Events.Click, S_SaveCategoryButton, saveRecord)
-$(S_CategoriesTable).on(Events.Click, S_ResetCategoryButton, resetCategory)
-$(S_CategoriesTable).on(Events.Click, S_DeleteCategoryButton, deleteCategory)
+$(categoriesTableSelector).on(Events.Click, saveCategoryButtonSelector, saveRecord)
+$(categoriesTableSelector).on(Events.Click, resetCategoryButtonSelector, resetCategory)
+$(categoriesTableSelector).on(Events.Click, deleteCategoryButtonSelector, deleteCategory)
 
 /*----------------
     Logic
 ----------------*/
 function showSaveCancelBtns(e, hideBtns = false) {
-    $(e.target).parents(TR).find(S_SaveCategoryButton + ", " + S_ResetCategoryButton)[addOrRemoveClass(hideBtns)](C_Invisible)
+    $(e.target).parents(TR).find(saveCategoryButtonSelector + ", " + resetCategoryButtonSelector)[addOrRemoveClass(hideBtns)](invisibleClassName)
 }
 
 function showColour(e) {
@@ -55,18 +54,18 @@ function saveRecord(e) {
     let method = isExistingRecord ? HttpMethod.PATCH : HttpMethod.POST
 
     $.ajax({
-        url: _itemEndpoint,
+        url: itemEndpoint,
         method: method,
         data: fd,
         processData: false,
         contentType: false,
         success: function (response) {
             showSaveCancelBtns(e, true)
-            parentRow.removeClass(C_NewCategoryRow)
+            parentRow.removeClass(newCategoryRowClassName)
 
             // update initial values
-            parentRow.find(S_HasInitialValue).map(
-                (i, e) => e.setAttribute(A_InitialValue, e.value))
+            parentRow.find(hasInitialValueSelector).map(
+                (i, e) => e.setAttribute(initialValueAttr, e.value))
 
             // add ID if is new row
             if (!isExistingRecord && response.id) {
@@ -88,8 +87,8 @@ function resetCategory(e) {
         return
     }
 
-    $(e.target).parents(TR).find(S_HasInitialValue)
-        .map((i, e) => e.value = e.getAttribute(A_InitialValue))
+    $(e.target).parents(TR).find(hasInitialValueSelector)
+        .map((i, e) => e.value = e.getAttribute(initialValueAttr))
 
     showSaveCancelBtns(e, true)
 }
@@ -103,13 +102,13 @@ function addNewRow() {
     $(row).find("input").val("")
 
     // reset colour preview
-    $(row).find(S_ColourInput).parents(TD).css("background", "white")
+    $(row).find(colourInputSelector).parents(TD).css("background", "white")
 
     // clear row number
     $(row).find(TD)[0].innerText = EMPTY
 
     // add new row class
-    $(row).addClass(C_NewCategoryRow)
+    $(row).addClass(newCategoryRowClassName)
 
     $(row).find("button.invisible").removeClass("invisible")
 
@@ -136,12 +135,12 @@ function deleteCategory(e) {
         return
     }
 
-    let categoryName = parentRow.find(`input[name="model[CategoryName]"]`).attr(A_InitialValue)
+    let categoryName = parentRow.find(`input[name="model[CategoryName]"]`).attr(initialValueAttr)
 
     if (!confirm(`Delete category ${categoryName}?`)) return
 
     $.ajax({
-        url: _itemEndpoint,
+        url: itemEndpoint,
         method: HttpMethod.DELETE,
         data: { Id: itemId },
         //processData: false,
