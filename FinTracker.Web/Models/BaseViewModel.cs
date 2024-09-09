@@ -11,5 +11,10 @@ namespace FinTracker.Web.Models
         {
             return db.TblImportFileFormats.ToArray();
         }
+
+        public int[] AvailableYears()
+        {
+            return db.TblTransactions.Select(t => t.Date.Value.Year).Distinct().ToArray();
+        }
     }
 }

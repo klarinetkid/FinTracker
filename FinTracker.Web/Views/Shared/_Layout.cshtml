@@ -14,6 +14,7 @@
 </head>
 <body>
     <header>
+        @{ int[] availableYears = new BaseViewModel().AvailableYears(); }
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3 fixed-top">
             <div class="container-fluid">
                 <a class="navbar-brand me-4" href="/">FinTracker.Web</a>
@@ -27,10 +28,29 @@
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Home
                             </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="/">Dashboard</a>
-                                <a class="dropdown-item" href="/breakdown/@DateTime.Now.Year">View Year</a>
-                            </div>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="/">Dashboard &raquo;</a>
+                                    <div class="dropdown-menu dropdown-submenu">
+                                        @foreach (int year in availableYears)
+                                        {
+                                            <a class="dropdown-item" href="/?y=@year">@year</a>
+                                        }
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/breakdown/@DateTime.Now.Year">View Year &raquo;</a>
+                                    <div class="dropdown-menu dropdown-submenu">
+                                        @foreach (int year in availableYears)
+                                        {
+                                            <a class="dropdown-item" href="/breakdown/@year">@year</a>
+                                        }
+                                    </div>
+                                </li>
+                               <li>
+                                    <a class="dropdown-item" href="#" id="customReportBtn">Custom Report</a>
+                               </li>
+                            </ul>
                         </li>
                         <li class="nav-item me-2">
                             <a class="nav-link" href="#">Budget</a>
@@ -59,6 +79,28 @@
             @RenderBody()
         </main>
     </div>
+
+    <div class="overlay d-none" id="overlay-customreport"></div>
+    <div id="popup-customreport" class="popup d-none">
+        <h4 class="mb-3">Custom Report</h4>
+        <form action="/breakdown/custom" method="get"> @*enctype="multipart/form-data"*@
+            <div class="form-group mb-3">
+                <label for="reportStart">Report Start</label>
+                <input class="form-control" id="reportStart" name="from" type="month" placeholder="yyyy-MM" max="7" />
+            </div>
+            <div class="form-group mb-3">
+                <label for="reportEnd">Report End</label>
+                <input class="form-control" id="reportEnd" name="to" type="month" placeholder="yyyy-MM" max="7" />
+            </div>
+            <div class="form-group mb-3">
+                <input type="submit" class="form-control" value="Submit" />
+            </div>
+        </form>
+    </div>
+    <script>
+        // custom report dialog
+        dialogWindow("#customReportBtn", "#overlay-customreport", "#popup-customreport")
+    </script>
 
     @* <footer class="border-top footer text-muted">
         <div class="container">

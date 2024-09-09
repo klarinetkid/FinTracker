@@ -1,7 +1,7 @@
 ﻿@model BreakdownViewModel
 
 @{
-    ViewData["Title"] = "Breakdown " + Model.BreakdownRangeStart.ToString("MMMM yyyy");
+    ViewData["Title"] = Model.TitleDate;
 }
 
 <div class="container">
@@ -136,7 +136,7 @@
                         {
                             CategoryTotal? cat = Model.CategoryTotals.Where(t => t.Category != null && t.Category.Id == tsorted[i].CategoryId).FirstOrDefault();
                             <tr class="transaction-row" data-categoryid="@(tsorted[i].CategoryId ?? -1)">
-                                <td>@(i+1)</td>
+                                <td title="Row ID: @(tsorted[i].Id)">@(i+1)</td>
                                 <td title="@tsorted[i].Date?.ToString("dddd, MMMM d, yyyy")">@tsorted[i].Date?.ToString("yyyy-MM-dd")</td>
                                 <td>@tsorted[i].Memo</td>
                                 <td class="numeric">@(tsorted[i].Amount != null ? Helper.FormatCurrency(tsorted[i].Amount.Value) : "")</td>

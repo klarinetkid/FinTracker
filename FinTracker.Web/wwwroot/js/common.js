@@ -34,3 +34,16 @@ function collectFormData(target) {
     target.find("[name]").map((_, e) => fd.append(e.name, e.value))
     return fd
 }
+
+
+
+function dialogWindow(openBtnSelector, overlaySelector, dialogSelector) {
+
+    $(openBtnSelector).on(Events.Click, () => toggleImportPopup(false))
+    $(overlaySelector).on(Events.Click, () => toggleImportPopup(true))
+    function toggleImportPopup(hidden) {
+        $(overlaySelector)[addOrRemoveClass(hidden)](DNONE)
+        $(dialogSelector)[addOrRemoveClass(hidden)](DNONE)
+    }
+
+}

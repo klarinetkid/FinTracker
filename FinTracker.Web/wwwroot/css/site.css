@@ -153,7 +153,7 @@ body {
     dashboard import styles
 ************************/
 
-#overlay {
+.overlay {
     background-color: #000000;
     opacity: 0.7;
     position: fixed;
@@ -163,7 +163,7 @@ body {
     height: 100%;
 }
 
-#popup-import {
+.popup {
     position: fixed;
     left: 50%;
     transform: translate(-50%, 0);
@@ -297,4 +297,26 @@ table.hide-unselected-transactions tr.import-row-inactive {
 
 .new-category-row td button {
     background-color: #c29d30
+}
+
+
+
+.dropdown-menu li {
+    position: relative;
+}
+
+.dropdown-menu .dropdown-submenu {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: -7px;
+}
+
+.dropdown-menu .dropdown-submenu-left {
+    right: 100%;
+    left: auto;
+}
+
+.dropdown-menu > li:hover > .dropdown-submenu {
+    display: block;
 }

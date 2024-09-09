@@ -31,6 +31,15 @@ namespace FinTracker.Web.Controllers
             return View(model);
         }
 
+        [Route("breakdown/custom")]
+        public IActionResult CustomBreakdown(DateOnly from, DateOnly to)
+        {
+            DateTime rangeStart = from.ToDateTime(new TimeOnly());
+            DateTime rangeEnd = to.ToDateTime(new TimeOnly());
+            BreakdownViewModel model = new BreakdownViewModel(rangeStart, rangeEnd);
+            return View("Breakdown", model);
+        }
+
         public IActionResult BreakdownJson(DateTime start, DateTime end)
         {
             BreakdownViewModel model = new BreakdownViewModel(start, end);

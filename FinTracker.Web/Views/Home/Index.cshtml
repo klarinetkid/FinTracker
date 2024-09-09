@@ -1,13 +1,13 @@
 ﻿@model DashboardViewModel
 
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Dashboard " + @Model.Year;
 }
 
 <div class="container">
     
     <div class="d-flex justify-content-between">
-        <h1 class="display-4">Dashboard</h1>
+        <h1 class="display-4">Dashboard @Model.Year</h1>
         <div>
             <button class="btn btn-danger" id="importBtn">
                 <img src="/img/Add_round_fill.svg" height="20" />
@@ -118,8 +118,8 @@
     </div>
 </div>
 
-<div id="overlay" class="d-none"></div>
-<div id="popup-import" class="d-none">
+<div class="overlay d-none" id="overlay-import"></div>
+<div id="popup-import" class="popup d-none">
     <h4 class="mb-3">Import File</h4>
     <form action="/Import" method="post" enctype="multipart/form-data">
         <div class="form-group mb-3">
@@ -142,4 +142,7 @@
     </form>
 </div> 
 
-<script type="text/javascript" src="/js/dashboard.js"></script>
+<script type="text/javascript">
+    // import data dialog window
+    dialogWindow("#importBtn", "#overlay-import", "#popup-import")
+</script>

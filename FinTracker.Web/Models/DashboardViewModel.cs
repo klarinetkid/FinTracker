@@ -19,8 +19,8 @@ namespace FinTracker.Web.Models
             Year = year;
             DateTime january = new DateTime(year, 1, 1);
 
-            CategoryTotals = Enumerable.Range(0, 11).SelectMany(i => db.GetCategoryTotals(january.AddMonths(i), january.AddMonths(i + 1))).ToArray();
-            MonthInOuts = Enumerable.Range(0, 11).Select(i => db.GetInOut(january.AddMonths(i), january.AddMonths(i + 1))).ToArray();
+            CategoryTotals = Enumerable.Range(0, 12).SelectMany(i => db.GetCategoryTotals(january.AddMonths(i), january.AddMonths(i + 1))).ToArray();
+            MonthInOuts = Enumerable.Range(0, 12).Select(i => db.GetInOut(january.AddMonths(i), january.AddMonths(i + 1))).ToArray();
             YearInOut = db.GetInOut(january, january.AddYears(1));
             SpecialBudgets = db.GetBudgetItemsForDate(new DateTime(Year, 12, 31)).Where(b => b.IsYearly.IsTrue()).ToArray();
         }

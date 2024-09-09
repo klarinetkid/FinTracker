@@ -78,6 +78,7 @@ function setDataPointExploded(categoryId, exploded) {
     chart.render()
 }
 
+
 // fetch data and render chart
 $.getJSON(`/Home/BreakdownJson?start=${rangeStart}&end=${rangeEnd}`, function (data) {
 
