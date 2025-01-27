@@ -1,0 +1,23 @@
+
+.transaction-table {
+    border-collapse: collapse
+}
+
+    .transaction-table thead {
+        background-color: #eeeeee;
+        border-start-start-radius: 12px;
+        overflow: hidden
+    }
+
+    .transaction-table th {
+        padding: 6px 12px;
+    }
+
+    .transaction-table tbody td {
+        padding: 3px 6px;
+        border: 1px solid #f0f0ff;
+    }
+
+.transaction-table-holder {
+    border-radius: 12px;
+}

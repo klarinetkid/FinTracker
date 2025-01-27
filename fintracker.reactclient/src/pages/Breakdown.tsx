@@ -1,0 +1,102 @@
+import Moment from "moment";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import InOutPills from "../components/InOutPills";
+import Spacer from "../components/Spacer";
+import SpendingTable from "../components/SpendingTable";
+import TransactionTable from "../components/TransactionTable";
+import ApiEndpoints from "../types/apiEndpoints";
+import Breakdown from "../types/Breakdown";
+
+function BreakdownPage() {
+    const [searchParams] = useSearchParams();
+
+    const start = Moment(searchParams.get("start") ?? "")
+    const end = Moment(searchParams.get("end") ?? "")
+
+    const paramsAreValid = start.isValid() && end.isValid() && end.isAfter(start)
+
+    const [breakdown, setBreakdown] = useState<Breakdown>()
+    const [isUpdated, setIsUpdated] = useState(false)
+
+    useEffect(() => {
+        if (!paramsAreValid || breakdown) return
+        getBreakdown();
+    }, [paramsAreValid, breakdown])
+
+    useEffect(() => {
+
+        getBreakdown()
+
+    }, [isUpdated])
+
+    return (
+
+        !paramsAreValid ? <h1>Invalid Parameters</h1> : // TODO: show back button
+            <div className="container">
+                <div className="flex justify-btwn align-centre noselect">
+                    <h1 className="display-4">{breakdown ? breakdown.title : "Loading..." }</h1>
+                </div>
+
+                {!breakdown ? "" :
+                    <>
+                        <InOutPills totalIn={breakdown.totalIn} totalOut={breakdown.totalOut} />
+
+                        <Spacer height={26} />
+
+                        <div style={{ display: "flex" }}>
+
+                            <div style={{ flexGrow: 1 }}>
+                                <SpendingTable categories={breakdown.categoryTotals} />
+                            </div>
+
+
+                            <div style={{ display: "flex", flexDirection: "column" }}>
+                                <div style={{ width: 200, height: 200 }}>
+                                    Income: $2,954.31
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <Spacer height={26} />
+
+                        <TransactionTable transactions={breakdown?.transactions} onChange={refreshList} />
+                    </>
+                }
+            </div>
+    );
+
+    async function getBreakdown() {
+        const response = await fetch(`${ApiEndpoints.GetBreakdown}?start=${start.format("yyyy-MM-DD")}&end=${end.format("yyyy-MM-DD")}`)
+        const data = await response.json()
+        setBreakdown(data)
+    }
+
+    function refreshList() {
+        setIsUpdated(!isUpdated)
+    }
+
+    //function getBreakdownTitle(): string {
+
+    //    if (!paramsAreValid) return ""
+
+    //    if (end.isSame(Moment(start).add(1, 'months')))
+    //        return start.format("MMMM yyyy")
+
+    //    else if (end.isSame(Moment(start).add(1, 'years')))
+    //        return "Year " + start.format("yyyy")
+    //    else {
+    //        if (start.year() == end.year()) {
+    //            return start.format("MMMM") + " - " +
+    //                Moment(end).add(-1, 'days').format("MMMM yyyy")
+    //        }
+    //        else {
+    //            return start.format("MMMM yyyy") + " - " +
+    //                Moment(end).add(-1, 'days').format("MMMM yyyy")
+    //        }
+    //    }
+    //}
+}
+
+export default BreakdownPage;

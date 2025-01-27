@@ -1,0 +1,26 @@
+
+.category-selector-holder {
+    position: relative;
+}
+
+.category-selector {
+    background: white;
+    border: solid black 1px;
+    border-radius: 6px;
+    position: absolute;
+    height: 200px;
+    overflow-y: scroll
+}
+
+.category-option {
+    padding: 8px 0;
+    cursor: pointer
+}
+
+    .category-option:hover {
+        background-color: #eeeeee
+    }
+
+    .category-option:active {
+        background-color: #dddddd
+    }

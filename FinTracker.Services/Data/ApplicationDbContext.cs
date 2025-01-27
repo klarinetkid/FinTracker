@@ -60,13 +60,16 @@ namespace FinTracker.Services.Data
             // TODO: this reserved catID should be a constant somewhere
             int periodIncome = TransactionsInRange(rangeStart, rangeEnd).Where(t => t.CategoryId == IncomeCategoryId).Sum(t => t.Amount) ?? 0;
 
+            // prevent divide by 0
+            if (periodIncome == 0) periodIncome = 1;
+
             return TransactionsInRange(rangeStart, rangeEnd).Include(t => t.Category).GroupBy(t => t.Category)
                 .Select((g) => new CategoryTotal
                 {
-                    Total = g.Sum(t => t.Amount) ?? 0,
+                    Total = g.Sum(t => t.Amount ?? 0),
                     Category = g.Key,
                     Date = rangeStart,
-                    PercentOfIncome = (float)(g.Sum(t => t.Amount) ?? 0) / periodIncome * 100
+                    PercentOfIncome = (float)(g.Sum(t => t.Amount ?? 0)) / periodIncome * 100
                 }).ToArray();
         }
 

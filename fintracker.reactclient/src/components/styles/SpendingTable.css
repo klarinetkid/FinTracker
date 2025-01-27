@@ -1,0 +1,30 @@
+.breakdown-table table {
+    border-collapse: collapse
+}
+
+    .breakdown-table table td, .breakdown-table table th {
+        /*border: solid 1px #ddd*/
+    }
+
+.breakdown-cat-bar-row {
+    height: 6px
+}
+
+.breakdown-cat-bar {
+    border-radius: 12px;
+    border-end-start-radius: 0;
+    height: 12px;
+}
+
+.breakdown-cat-value-row {
+    line-height: 0.8
+}
+
+    .breakdown-cat-value-row .category-pill {
+        border-start-end-radius: 0;
+        border-start-start-radius: 0;
+    }
+
+.breakdown-cat-spacer-row {
+    height: 16px
+}

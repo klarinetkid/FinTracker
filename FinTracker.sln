@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTracker.Services", "FinTracker.Services\FinTracker.Services.csproj", "{75A0C172-F291-4BC1-A999-01CAB1359618}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinTracker.Services", "FinTracker.Services\FinTracker.Services.csproj", "{75A0C172-F291-4BC1-A999-01CAB1359618}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinTracker.Web", "FinTracker.Web\FinTracker.Web.csproj", "{D8193396-2F5C-45E3-A456-60C3E34A114A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTracker.Api", "FinTracker.Api\FinTracker.Api.csproj", "{15BFCB4F-8509-4C09-8C7A-91A2EAD9F384}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "fintracker.reactclient", "FinTracker.ReactClient\fintracker.reactclient.esproj", "{94B7173D-D877-43AA-B6F1-AF2DBB7FB743}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,16 @@ Global
 		{D8193396-2F5C-45E3-A456-60C3E34A114A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8193396-2F5C-45E3-A456-60C3E34A114A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8193396-2F5C-45E3-A456-60C3E34A114A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15BFCB4F-8509-4C09-8C7A-91A2EAD9F384}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15BFCB4F-8509-4C09-8C7A-91A2EAD9F384}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15BFCB4F-8509-4C09-8C7A-91A2EAD9F384}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15BFCB4F-8509-4C09-8C7A-91A2EAD9F384}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94B7173D-D877-43AA-B6F1-AF2DBB7FB743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94B7173D-D877-43AA-B6F1-AF2DBB7FB743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94B7173D-D877-43AA-B6F1-AF2DBB7FB743}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{94B7173D-D877-43AA-B6F1-AF2DBB7FB743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94B7173D-D877-43AA-B6F1-AF2DBB7FB743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94B7173D-D877-43AA-B6F1-AF2DBB7FB743}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
