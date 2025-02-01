@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import BreakdownPage from "./pages/Breakdown";
+import BreakdownPage from "./pages/BreakdownPage";
 import Dashboard from './pages/Dashboard';
 import Layout from './pages/_Layout';
-import Pages from "./types/pages";
+import Pages from "./types/Pages";
 
 function App() {
 

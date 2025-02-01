@@ -1,4 +1,4 @@
-import { formatCurrency } from "../helper";
+import { formatCurrency } from "../common/helper";
 import './styles/InOutPills.css';
 
 interface InOutPillsProps {
@@ -9,13 +9,11 @@ interface InOutPillsProps {
 function InOutPills(props: InOutPillsProps) {
 
   return (
-      <div className="d-flex align-items-center">
-          <div className="dashboard-month-inout">
-              <div className="dashboard-month-in month-inout-pill">In: {formatCurrency(props.totalIn)}</div>
-              <div className="dashboard-month-out month-inout-pill">Out: {formatCurrency(props.totalOut, true)}</div>
-              <div className="dashboard-month-net month-inout-pill">Net: {formatCurrency(props.totalIn+props.totalOut)}</div>
-          </div>
-      </div>
+        <div className="dashboard-month-inout">
+            <div className="dashboard-month-in month-inout-pill">In: {formatCurrency(props.totalIn)}</div>
+            <div className="dashboard-month-out month-inout-pill">Out: {formatCurrency(props.totalOut, true)}</div>
+            <div className="dashboard-month-net month-inout-pill">Net: {formatCurrency(props.totalIn+props.totalOut)}</div>
+        </div>
   );
 }
 

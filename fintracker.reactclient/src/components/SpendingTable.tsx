@@ -1,21 +1,31 @@
-import { formatCurrency, toFixed } from "../helper";
-import CategoryTotal from "../types/categoryTotal";
+import { useState } from "react";
+import { formatCurrency, toFixed } from "../common/helper";
+import CategoryTotal from "../types/CategoryTotal";
 import CategoryPill from "./CategoryPill";
+import Checkbox from "./Checkbox";
 import './styles/SpendingTable.css';
+import Breakdown from "../types/Breakdown";
+import moment from "moment";
+import BudgetItem from "../types/BudgetItem";
 
 interface SpendingTableProps {
-    categories: CategoryTotal[]
+    breakdown: Breakdown,
+    allowSelect?: boolean
 }
 
 function SpendingTable(props: SpendingTableProps) {
 
-    const totalSpend = Math.abs(props.categories.filter(c => c.total < 0)
+    const totalSpend = Math.abs(props.breakdown.categoryTotals.filter(c => c.total < 0)
         .map(c => c.total).reduce((sum, i) => sum + i))
 
-    // TODO: show income somewhere else
-    const tableCategories = props.categories
-        .filter(c => c.category?.id != 0)
+
+    const spendingCategories = props.breakdown.categoryTotals
+        .filter(c => c.total < 0)
         .sort((a, b) => Math.abs(b.percentOfIncome) - Math.abs(a.percentOfIncome))
+
+    const budgetEnd = moment(new Date()).isBefore(moment(props.breakdown.breakdownRangeEnd)) ? new Date() : props.breakdown.breakdownRangeEnd
+    const effectiveBudgetDays = moment(budgetEnd).diff(props.breakdown.breakdownRangeStart, "days")
+    const budgetFactor = 12.0 * effectiveBudgetDays / 365.0; // TODO: leap year?
 
     return (
         <>
@@ -23,6 +33,9 @@ function SpendingTable(props: SpendingTableProps) {
             <table>
                 <thead>
                     <tr>
+                        {!props.allowSelect ? "" :
+                            <th></th>
+                        }
                         <th>Category</th>
                         <th>Total</th>
                         <th>% of in.</th>
@@ -33,8 +46,12 @@ function SpendingTable(props: SpendingTableProps) {
                     <tr style={{height: "20px"} }></tr>
                 </thead>
                 <tbody>
-                    {tableCategories.map(c =>
-                        <BreakdownTableRow key={c.category?.id} categoryTotal={c} />
+                    {spendingCategories.map(c =>
+                        <BreakdownTableRow
+                            key={c.category?.id}
+                            categoryTotal={c}
+                            budget={props.breakdown.effectiveBudgetItems.filter(b => b.category.id == c.category?.id)[0] }
+                        />
                     )}
                 </tbody>
             </table>
@@ -43,31 +60,71 @@ function SpendingTable(props: SpendingTableProps) {
     )
 
     interface BreakdownTableRowProps {
-        categoryTotal: CategoryTotal
+        categoryTotal: CategoryTotal,
+        budget?: BudgetItem
     }
-    function BreakdownTableRow(props: BreakdownTableRowProps) {
+
+    function BreakdownTableRow(cprops: BreakdownTableRowProps) {
+
+        const [isSelected, setIsSelected] = useState(false)
+
+        const monthlyBudgetAmount = !cprops.budget ? 0 : Math.floor(cprops.budget.amount * budgetFactor)
+        const diff = monthlyBudgetAmount + cprops.categoryTotal.total
+        const deviation = diff / monthlyBudgetAmount * 100;
+
         return (
             <>
-                <tr className="breakdown-cat-bar-row">
+                <tr className={`breakdown-cat-bar-row ${isSelected ? "selected" : ""}`}>
+                    {!props.allowSelect ? "" :
+                        <td rowSpan={2}>
+                            <Checkbox checked={isSelected} onChange={(val) => setIsSelected(val)} />
+                        </td>
+                    }
+                    <td colSpan={1}>
+                        <div
+                            className="breakdown-cat-bar-start"
+                            style={{
+                                backgroundColor: "#" + (cprops.categoryTotal.category?.colour),
+                                border: cprops.categoryTotal.category ? "" : "solid black 1px",
+                                width: "100%"
+                            }}></div>
+                    </td>
                     <td colSpan={5}>
                         <div
                             className="breakdown-cat-bar"
                             style={{
-                                backgroundColor: "#" + (props.categoryTotal.category?.colour),
-                                border: props.categoryTotal.category ? "" : "solid black 1px",
-                                width: (props.categoryTotal.total / tableCategories[0].total * 100) + "%"
+                                backgroundColor: "#" + (cprops.categoryTotal.category?.colour),
+                                border: cprops.categoryTotal.category ? "" : "solid black 1px",
+                                width: (cprops.categoryTotal.total / spendingCategories[0].total * 100) + "%"
                             }}></div>
                     </td>
                 </tr>
-                <tr className="breakdown-cat-value-row">
+                <tr className={`breakdown-cat-value-row ${isSelected ? "selected" : ""}`}>
+                    
                     <td className="lalign">
-                        <CategoryPill category={props.categoryTotal.category} />
+                        <CategoryPill category={cprops.categoryTotal.category} />
                     </td>
-                    <td className="ralign">{formatCurrency(props.categoryTotal.total)}</td>
-                    <td className="ralign">{toFixed(props.categoryTotal.percentOfIncome, 1)}%</td>
-                    <td className="ralign">{toFixed(props.categoryTotal.total / totalSpend * 100, 1)}%</td>
-                    <td className="ralign"></td>
-                    <td className="ralign"></td>
+                    <td className="ralign">{formatCurrency(cprops.categoryTotal.total)}</td>
+                    <td className="ralign">{toFixed(cprops.categoryTotal.percentOfIncome, 1)}%</td>
+                    <td className="ralign">{toFixed(cprops.categoryTotal.total / totalSpend * 100, 1)}%</td>
+                    <td className="ralign">
+                        {!cprops.budget ? "" :
+                            formatCurrency(cprops.budget.isYearly ? cprops.budget.amount : monthlyBudgetAmount)
+                        }
+                    </td>
+                    <td className="ralign">
+                        {!cprops.budget ? "" :
+                            cprops.budget.isYearly ?
+
+                                <span className="budget-dev-yearly">
+                                    {toFixed(Math.abs(cprops.categoryTotal.total / cprops.budget.amount * 100), 1)}%
+                                </span>
+                                :
+                                <span className={diff < 0 ? "budget-dev-over" : "budget-dev-under"} title={formatCurrency(diff * -1)}>
+                                    {(deviation < 0 ? "+" : "-") + toFixed(Math.abs(deviation), 1)}%
+                                </span>
+                        }
+                    </td>
                 </tr>
                 <tr className="breakdown-cat-spacer-row"></tr>
             </>

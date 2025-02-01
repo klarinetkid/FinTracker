@@ -4,8 +4,8 @@ import Moment from "moment";
 const USDollar = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
 export function formatCurrency(value: number, abs: boolean = false): string {
-    value /= 100 // value passed as cents
-    return USDollar.format(abs ? Math.abs(value) : value)
+    const dollarValue = value / 100 // value passed as cents
+    return USDollar.format(abs ? Math.abs(dollarValue) : dollarValue)
 }
 
 export function addToColour(hex: string, amt: number): string {

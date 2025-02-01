@@ -1,9 +1,9 @@
 
 import Moment from 'moment'
 import { createSearchParams, useNavigate } from 'react-router-dom'
-import { addToColour, dateOnly, formatCurrency, toFixed } from '../helper.js'
-import Pages from '../types/pages.js'
-import Summary from '../types/summary.js'
+import { addToColour, dateOnly, formatCurrency, toFixed } from '../common/helper.js'
+import Pages from '../types/Pages.js'
+import Summary from '../types/Summary.js'
 import InOutPills from './InOutPills.js'
 import './styles/MonthSummaryCard.css'
 

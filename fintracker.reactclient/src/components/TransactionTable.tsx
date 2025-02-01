@@ -1,9 +1,9 @@
 import moment from 'moment'
 import { useEffect, useState } from 'react'
-import { formatCurrency } from '../helper'
+import { formatCurrency } from '../common/helper'
 import ApiEndpoints from '../types/apiEndpoints'
 import Transaction from '../types/Transaction'
-import TransactionCategory from '../types/transactionCategory'
+import TransactionCategory from '../types/TransactionCategory'
 import CategoryPill from './CategoryPill'
 import CategorySelector from './CategorySelector'
 import './styles/TransactionTable.css'
@@ -54,13 +54,19 @@ function TransactionTable(props: TransactionTableProps) {
 
         return (
             <tr>
-                <td className="bold">{cprops.num}</td>
+                <td className="bold" title={"Row ID: " + cprops.transaction.id}>{cprops.num}</td>
                 <td className="nobreak">{moment(cprops.transaction.date).format("yyyy-MM-DD")}</td>
                 <td className="ellipsis-overflow lalign" style={{ maxWidth: "70%" }}>{cprops.transaction.memo}</td>
                 <td className="ralign">{formatCurrency(cprops.transaction.amount)}</td>
-                <td onClick={ () => setIsEditingCat(true) }>
+                <td onDoubleClick={ () => setIsEditingCat(true) }>
                     {isEditingCat ?
-                        <CategorySelector setValue={setNewCategory} /> :
+
+                        <CategorySelector
+                            onChange={setNewCategory}
+                            value={cprops.transaction.category}
+                            isOpen={true}
+                            onClose={() => setIsEditingCat(false)} /> :
+
                         <CategoryPill category={cprops.transaction.category} />
                     }
                 </td>

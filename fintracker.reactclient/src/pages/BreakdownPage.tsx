@@ -7,9 +7,11 @@ import SpendingTable from "../components/SpendingTable";
 import TransactionTable from "../components/TransactionTable";
 import ApiEndpoints from "../types/apiEndpoints";
 import Breakdown from "../types/Breakdown";
+import IncomeCard from "../components/IncomeCard";
+import BackButton from "../components/BackButton";
 
 function BreakdownPage() {
-    const [searchParams] = useSearchParams();
+    const [searchParams] = useSearchParams()
 
     const start = Moment(searchParams.get("start") ?? "")
     const end = Moment(searchParams.get("end") ?? "")
@@ -34,7 +36,10 @@ function BreakdownPage() {
 
         !paramsAreValid ? <h1>Invalid Parameters</h1> : // TODO: show back button
             <div className="container">
-                <div className="flex justify-btwn align-centre noselect">
+                <div className="noselect flex align-centre">
+
+                    <BackButton />
+
                     <h1 className="display-4">{breakdown ? breakdown.title : "Loading..." }</h1>
                 </div>
 
@@ -46,15 +51,19 @@ function BreakdownPage() {
 
                         <div style={{ display: "flex" }}>
 
-                            <div style={{ flexGrow: 1 }}>
-                                <SpendingTable categories={breakdown.categoryTotals} />
+                            <div style={{ flexGrow: 1, marginRight: 20 }}>
+                                <SpendingTable
+                                    breakdown={breakdown}
+                                    allowSelect={true}
+                                />
                             </div>
 
-
                             <div style={{ display: "flex", flexDirection: "column" }}>
-                                <div style={{ width: 200, height: 200 }}>
-                                    Income: $2,954.31
-                                </div>
+
+                                {breakdown.categoryTotals.filter(c => c.total > 0).map((c, i) =>
+                                    <IncomeCard key={i} categoryTotal={c} />
+                                )}
+
                             </div>
                         </div>
 

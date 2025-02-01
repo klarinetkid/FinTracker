@@ -6,7 +6,8 @@ import InOutPills from '../components/InOutPills'
 import MonthSummaryCard from '../components/MonthSummaryCard'
 import Spacer from '../components/Spacer'
 import ApiEndpoints from '../types/apiEndpoints'
-import Summary from '../types/summary'
+import Summary from '../types/Summary'
+import Checkbox from '../components/Checkbox'
 
 function Dashboard() {
 
@@ -39,7 +40,8 @@ function Dashboard() {
     }, [year])
 
     return (
-        <div className="container" style={{width:800} }>
+        <div className="container" style={{ width: 800, margin: "auto" }}>
+
             <div className="flex justify-btwn align-centre noselect">
 
                 <DashboardIncrementButton increment={-1} button={ArrowLeft} />

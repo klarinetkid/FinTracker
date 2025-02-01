@@ -1,4 +1,4 @@
-import TransactionCategory from "./transactionCategory"
+import TransactionCategory from "./TransactionCategory"
 
 type BudgetItem = {
 	id: number,

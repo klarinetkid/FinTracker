@@ -1,0 +1,13 @@
+
+.income-card {
+    width: 200px;
+    background: #eeeeee;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 80px;
+    align-items: center;
+}

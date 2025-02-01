@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import './styles/_Layout.css'
 
 function Layout() {
 
@@ -6,19 +7,7 @@ function Layout() {
 
     return (
         <>
-            {/*<div>
-            //    <div>
-            //        <div>
-            //            <Link to="/">Home</Link>
-            //        </div>
-            //        <div>
-            //            <Link to="/blogs">Blogs</Link>
-            //        </div>
-            //        <div>
-            //            <Link to="/contact">Contact</Link>
-            //        </div>
-            //    </div>
-            //</div>*/}
+            
 
             <Outlet />
         </>
@@ -26,3 +15,18 @@ function Layout() {
 }
 
 export default Layout;
+
+//<div className="nav-bar">
+//    <div>
+//        Dashboard
+//    </div>
+//    <div>
+//        Year
+//    </div>
+//    <div>
+//        System
+//    </div>
+//    <div>
+//        Import
+//    </div>
+//</div>
