@@ -7,7 +7,7 @@ import InOutPills from "../components/InOutPills";
 import Spacer from "../components/Spacer";
 import SpendingTable from "../components/SpendingTable";
 import TransactionTable from "../components/TransactionTable";
-import ApiEndpoints from "../types/apiEndpoints";
+import BreakdownService from "../services/BreakdownService";
 import Breakdown from "../types/Breakdown";
 
 function BreakdownPage() {
@@ -32,80 +32,61 @@ function BreakdownPage() {
 
     }, [isUpdated])
 
-    return (
+    return (!paramsAreValid ? 
+        <>
+            <BackButton />
+            <h1>Invalid Parameters</h1>
+        </>
+        : 
+        <div className="container">
+            <div className="noselect flex align-centre">
 
-        !paramsAreValid ? <h1>Invalid Parameters</h1> : // TODO: show back button
-            <div className="container">
-                <div className="noselect flex align-centre">
+                <BackButton />
 
-                    <BackButton />
+                <h1 className="display-4">{breakdown ? breakdown.title : "Loading..." }</h1>
+            </div>
 
-                    <h1 className="display-4">{breakdown ? breakdown.title : "Loading..." }</h1>
-                </div>
+            {!breakdown ? "" :
+                <>
+                    <InOutPills totalIn={breakdown.totalIn} totalOut={breakdown.totalOut} />
 
-                {!breakdown ? "" :
-                    <>
-                        <InOutPills totalIn={breakdown.totalIn} totalOut={breakdown.totalOut} />
+                    <Spacer height={26} />
 
-                        <Spacer height={26} />
+                    <div style={{ display: "flex" }}>
 
-                        <div style={{ display: "flex" }}>
-
-                            <div style={{ flexGrow: 1, marginRight: 20 }}>
-                                <SpendingTable
-                                    breakdown={breakdown}
-                                    allowSelect={true}
-                                />
-                            </div>
-
-                            <div style={{ display: "flex", flexDirection: "column" }}>
-
-                                {breakdown.categoryTotals.filter(c => c.total > 0).map((c, i) =>
-                                    <IncomeCard key={i} categoryTotal={c} />
-                                )}
-
-                            </div>
+                        <div style={{ flexGrow: 1, marginRight: 20 }}>
+                            <SpendingTable
+                                breakdown={breakdown}
+                                allowSelect={true}
+                            />
                         </div>
 
+                        <div style={{ display: "flex", flexDirection: "column" }}>
 
-                        <Spacer height={26} />
+                            {breakdown.categoryTotals.filter(c => c.total > 0).map((c, i) =>
+                                <IncomeCard key={i} categoryTotal={c} />
+                            )}
 
-                        <TransactionTable transactions={breakdown?.transactions} onChange={refreshList} />
-                    </>
-                }
-            </div>
+                        </div>
+                    </div>
+
+
+                    <Spacer height={26} />
+
+                    <TransactionTable transactions={breakdown?.transactions} onChange={refreshList} />
+                </>
+            }
+        </div>
     );
 
     async function getBreakdown() {
-        const response = await fetch(`${ApiEndpoints.GetBreakdown}?start=${start.format("yyyy-MM-DD")}&end=${end.format("yyyy-MM-DD")}`)
-        const data = await response.json()
+        const data = await BreakdownService.getBreakdown(start, end)
         setBreakdown(data)
     }
 
     function refreshList() {
         setIsUpdated(!isUpdated)
     }
-
-    //function getBreakdownTitle(): string {
-
-    //    if (!paramsAreValid) return ""
-
-    //    if (end.isSame(Moment(start).add(1, 'months')))
-    //        return start.format("MMMM yyyy")
-
-    //    else if (end.isSame(Moment(start).add(1, 'years')))
-    //        return "Year " + start.format("yyyy")
-    //    else {
-    //        if (start.year() == end.year()) {
-    //            return start.format("MMMM") + " - " +
-    //                Moment(end).add(-1, 'days').format("MMMM yyyy")
-    //        }
-    //        else {
-    //            return start.format("MMMM yyyy") + " - " +
-    //                Moment(end).add(-1, 'days').format("MMMM yyyy")
-    //        }
-    //    }
-    //}
 }
 
 export default BreakdownPage;

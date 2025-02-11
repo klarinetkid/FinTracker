@@ -1,5 +1,6 @@
 import '../styles/SpendingTable.css';
-import Breakdown, { getBreakdownBudgetMonthFactor, getTotalSpend } from "../types/Breakdown";
+import Breakdown from "../types/Breakdown";
+import { getBreakdownBudgetMonthFactor, getTotalSpend } from '../utils/BreakdownHelper';
 import SpendingTableRow from './SpendingTableRow';
 
 interface SpendingTableProps {

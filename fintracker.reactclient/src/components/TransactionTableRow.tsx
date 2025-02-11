@@ -1,6 +1,6 @@
 import Moment from "moment"
-import { useCallback, useEffect, useState } from "react"
-import ApiEndpoints from "../types/apiEndpoints"
+import { useEffect, useState } from "react"
+import TransactionService from "../services/TransactionService"
 import Transaction from "../types/Transaction"
 import TransactionCategory from "../types/TransactionCategory"
 import { formatCurrency } from "../utils/helper"
@@ -51,9 +51,12 @@ function TransactionTableRow(props: TransactionTableRowProps) {
         if (newCategory === undefined) return
 
         // this just assumes it's successful?
-        await fetch(`${ApiEndpoints.UpdateTransactionCategory}?transactionId=${props.transaction.id}&categoryId=${newCategory.id}`, {
-            method: "POST"
-        })
+        //await fetch(`${ApiEndpoints.UpdateTransactionCategory}?transactionId=${props.transaction.id}&categoryId=${newCategory.id}`, {
+        //    method: "POST"
+        //})
+
+        // just assume it's successful?
+        await TransactionService.updateTransactionCategory(props.transaction.id, newCategory.id)
 
         props.transaction.category = newCategory
 

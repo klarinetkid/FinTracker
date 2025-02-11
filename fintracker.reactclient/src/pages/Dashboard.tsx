@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import ArrowLeft from '../assets/arrow-left-square.svg?react'
 import ArrowRight from '../assets/arrow-right-square.svg?react'
+import DashboardIncrementButton from '../components/DashboardIncrementButton'
 import InOutPills from '../components/InOutPills'
 import MonthSummaryCard from '../components/MonthSummaryCard'
 import Spacer from '../components/Spacer'
-import ApiEndpoints from '../types/apiEndpoints'
+import SummaryService from '../services/SummaryService'
 import Summary from '../types/Summary'
 import { getTotalIn, getTotalOut } from '../utils/SummaryHelper'
 
@@ -19,35 +20,52 @@ function Dashboard() {
     const [availableYears, setAvailableYears] = useState<number[]>()
     const [year, setYear] = useState(defaultYear)
 
-    // TODO: refactor API services
+    // TODO: years should be kept in a global state. when transactions change (imported)
+    // refresh the value. but otherwise it doesn't change and should be globally available.
     useEffect(() => {
         if (availableYears) {
             if (!year && availableYears[0]) setYear(availableYears[0])
-
             return
         }
-        getAvailableYears()
 
+        (async () => {
+            const data = await SummaryService.getAvailableYears()
+            setAvailableYears(data)
+        })()
     }, [availableYears, year])
 
-    // load summaries when year changes
-    useEffect(() => {
-        if (!year) return
 
-        // TODO: push history
-        getSummaries(year)
+    useEffect(() => {
+        (async () => {
+            if (!year) return
+            const data = await SummaryService.getYearSummaries(year)
+            setSummaries(data) // TODO: push history
+        })()
     }, [year])
+
 
     return (
         <div className="container" style={{ width: 800, margin: "auto" }}>
 
             <div className="flex justify-btwn align-centre noselect">
 
-                <DashboardIncrementButton increment={-1} button={ArrowLeft} />
+                <DashboardIncrementButton
+                    button={ArrowLeft}
+                    increment={-1}
+                    availableYears={availableYears}
+                    currentYear={year}
+                    setCurrentYear={setYear}
+                />
 
                 <h1>Dashboard {year}</h1>
 
-                <DashboardIncrementButton increment={1} button={ArrowRight} />
+                <DashboardIncrementButton
+                    button={ArrowRight}
+                    increment={1}
+                    availableYears={availableYears}
+                    currentYear={year}
+                    setCurrentYear={setYear}
+                />
 
             </div>
 
@@ -62,43 +80,6 @@ function Dashboard() {
             </div>
         </div>
     )
-
-    function navToYear(inc: number) {
-        if (year && yearIsAvailable(year + inc)) setYear(year + inc)
-    }
-
-    function yearIsAvailable(year: number) {
-        return availableYears && availableYears.indexOf(year) > -1
-    }
-
-    async function getSummaries(year: number) {
-        const response = await fetch(ApiEndpoints.GetYearSummaries + "?year=" + year)
-        const data = await response.json()
-        setSummaries(data)
-    }
-
-    async function getAvailableYears() {
-        const response = await fetch(ApiEndpoints.GetAvailableYears)
-        const data = await response.json()
-        setAvailableYears(data)
-    }
-
-
-    // subcomponent for increment buttons
-    interface DashboardIncrementButtonProps {
-        button: React.FunctionComponent<React.SVGProps<SVGSVGElement>>,
-        increment: number
-    }
-    function DashboardIncrementButton(props: DashboardIncrementButtonProps) {
-        return (
-            <div className="dash-lr-btn"
-                onClick={() => { navToYear(props.increment) }}
-                style={{ visibility: year && yearIsAvailable(year + props.increment) ? "visible" : "hidden" }}
-            >
-                <props.button width="36px" height="36px" />
-            </div>
-        )
-    }
 }
 
 export default Dashboard

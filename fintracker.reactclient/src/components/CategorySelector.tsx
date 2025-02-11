@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useClickOutside } from "../hooks/useClickOutisde";
 import '../styles/CategorySelector.css';
-import ApiEndpoints from "../types/apiEndpoints";
 import TransactionCategory from "../types/TransactionCategory";
 import CategoryPill from "./CategoryPill";
+import CategoryService from "../services/CategoryService";
 
 interface CategorySelectorProps {
     onChange?: React.Dispatch<React.SetStateAction<TransactionCategory | undefined>>,
@@ -21,13 +21,17 @@ function CategorySelector(props: CategorySelectorProps) {
     const [categories, setCategories] = useState<TransactionCategory[]>()
     const [isOpen, setIsOpen] = useState(props.isOpen ?? false)
 
+
     useEffect(() => {
         if (!isOpen && props.onClose)
             props.onClose()
     }, [isOpen, props])
 
     useEffect(() => {
-        getCategories()
+        (async () => {
+            const data = await CategoryService.getCategories()
+            setCategories(data)
+        })()
     }, [])
 
     return !categories ? "" : (
@@ -44,12 +48,6 @@ function CategorySelector(props: CategorySelectorProps) {
             </div>
         </div>
     )
-
-    async function getCategories() {
-        const response = await fetch(ApiEndpoints.GetCategories)
-        const data = await response.json()
-        setCategories(data)
-    }
 
     function optionClick(c: TransactionCategory) {
         setSelectedValue(c)
