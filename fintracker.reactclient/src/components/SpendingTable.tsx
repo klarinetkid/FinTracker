@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatCurrency, toFixed } from "../common/helper";
 import CategoryTotal from "../types/CategoryTotal";
 import CategoryPill from "./CategoryPill";
 import Checkbox from "./Checkbox";
 import './styles/SpendingTable.css';
-import Breakdown from "../types/Breakdown";
-import moment from "moment";
+import Breakdown, { getBreakdownBudgetMonthFactor, getTotalSpend } from "../types/Breakdown";
 import BudgetItem from "../types/BudgetItem";
+import { Total } from "../types/TransactionCategory";
 
 interface SpendingTableProps {
     breakdown: Breakdown,
@@ -15,17 +15,19 @@ interface SpendingTableProps {
 
 function SpendingTable(props: SpendingTableProps) {
 
-    const totalSpend = Math.abs(props.breakdown.categoryTotals.filter(c => c.total < 0)
-        .map(c => c.total).reduce((sum, i) => sum + i))
-
+    const totalSpend = getTotalSpend(props.breakdown)
 
     const spendingCategories = props.breakdown.categoryTotals
         .filter(c => c.total < 0)
         .sort((a, b) => Math.abs(b.percentOfIncome) - Math.abs(a.percentOfIncome))
 
-    const budgetEnd = moment(new Date()).isBefore(moment(props.breakdown.breakdownRangeEnd)) ? new Date() : props.breakdown.breakdownRangeEnd
-    const effectiveBudgetDays = moment(budgetEnd).diff(props.breakdown.breakdownRangeStart, "days")
-    const budgetFactor = 12.0 * effectiveBudgetDays / 365.0; // TODO: leap year?
+    const budgetFactor = getBreakdownBudgetMonthFactor(props.breakdown)
+
+    const [selectedCategories, setSelectedCategories] = useState<CategoryTotal[]>([])
+
+    useEffect(() => {
+        console.log(selectedCategories)
+    }, [selectedCategories])
 
     return (
         <>
@@ -50,18 +52,42 @@ function SpendingTable(props: SpendingTableProps) {
                         <BreakdownTableRow
                             key={c.category?.id}
                             categoryTotal={c}
-                            budget={props.breakdown.effectiveBudgetItems.filter(b => b.category.id == c.category?.id)[0] }
+                            budget={props.breakdown.effectiveBudgetItems.filter(b => b.category.id == c.category?.id)[0]}
+                            onToggleSelect={(isSelected) => !c.category ? { } : toggleCategorySelect(c, isSelected) }
                         />
                     )}
+                    {
+                        selectedCategories.length == 0 ? "" :
+                            <BreakdownTableRow
+                                    key={-10}
+                                    categoryTotal={aggregateSelectedCategoryTotals()}
+                                    //budget={props.breakdown.effectiveBudgetItems.filter(b => selectedCategories.map(c => !c.category ? -20 : c.category.id).indexOf b.category.id) }
+                                />
+                    }
+                        
                 </tbody>
             </table>
         </div>   
         </>
     )
+    
+    function toggleCategorySelect(categoryTotal: CategoryTotal, isSelected: boolean) {
+
+        
+    }
+
+    function aggregateSelectedCategoryTotals(): CategoryTotal {
+        return {
+            category: Total,
+            percentOfIncome: selectedCategories.map(c => c.percentOfIncome).reduce((a, b) => a + b, 0),
+            total: selectedCategories.map(c => c.total).reduce((a, b) => a + b, 0)
+        }
+    }
 
     interface BreakdownTableRowProps {
         categoryTotal: CategoryTotal,
-        budget?: BudgetItem
+        budget?: BudgetItem,
+        onToggleSelect?: (isSelected: boolean) => void
     }
 
     function BreakdownTableRow(cprops: BreakdownTableRowProps) {
@@ -71,6 +97,22 @@ function SpendingTable(props: SpendingTableProps) {
         const monthlyBudgetAmount = !cprops.budget ? 0 : Math.floor(cprops.budget.amount * budgetFactor)
         const diff = monthlyBudgetAmount + cprops.categoryTotal.total
         const deviation = diff / monthlyBudgetAmount * 100;
+
+        // add/remove from selection
+        useEffect(() => {
+            console.log("isSelected changed")
+            const newSelected = [...selectedCategories]
+
+            if (!isSelected) {
+                const index = newSelected.indexOf(cprops.categoryTotal)
+                if (index > -1) newSelected.splice(index, 1)
+            } else {
+                newSelected.push(cprops.categoryTotal)
+            }
+
+            //if (newSelected.length !== selectedCategories.length)
+            //    setSelectedCategories(newSelected)
+        }, [isSelected])
 
         return (
             <>

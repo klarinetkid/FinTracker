@@ -1,7 +1,8 @@
 
 enum Pages {
     Dashboard = "/",
-    Breakdown = "/breakdown"
+    Breakdown = "/breakdown",
+    Menu = "/menu"
 }
 
 export default Pages

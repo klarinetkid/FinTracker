@@ -7,7 +7,6 @@ import MonthSummaryCard from '../components/MonthSummaryCard'
 import Spacer from '../components/Spacer'
 import ApiEndpoints from '../types/apiEndpoints'
 import Summary from '../types/Summary'
-import Checkbox from '../components/Checkbox'
 
 function Dashboard() {
 

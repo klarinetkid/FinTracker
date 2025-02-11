@@ -1,4 +1,5 @@
-import Moment from "moment";
+import moment from "moment";
+import Breakdown from "../types/Breakdown";
 
 
 const USDollar = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
@@ -30,9 +31,5 @@ export function toFixed(num: number, places: number = 2) {
 }
 
 export function dateOnly(date: Date): string {
-    return Moment(date).format("yyyy-MM-DD")
-}
-
-export function addMonths(date: Date, months: number): Date {
-    return new Date(new Date(date).setMonth(date.getMonth() + months))
+    return moment(date).format("yyyy-MM-DD")
 }
