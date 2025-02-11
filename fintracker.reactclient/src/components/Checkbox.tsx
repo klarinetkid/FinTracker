@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import CheckedIcon from '../assets/Check_ring.svg?react'
-import UncheckedIcon from '../assets/Check_ring_circle.svg?react'
+import CheckedIcon from '../assets/Check_ring.svg?react';
+import UncheckedIcon from '../assets/Check_ring_circle.svg?react';
 
 interface CheckboxProps {
     checked?: boolean,

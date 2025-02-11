@@ -1,7 +1,7 @@
-import { formatCurrency } from "../common/helper";
+import '../styles/IncomeCard.css';
 import CategoryTotal from "../types/CategoryTotal";
+import { formatCurrency } from "../utils/helper";
 import CategoryPill from "./CategoryPill";
-import './styles/IncomeCard.css'
 
 interface IncomeCardProps {
     categoryTotal: CategoryTotal

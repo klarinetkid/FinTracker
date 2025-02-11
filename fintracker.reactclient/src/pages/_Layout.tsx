@@ -1,6 +1,5 @@
 import { Outlet } from "react-router-dom";
-import './styles/_Layout.css'
-import { useState } from "react";
+import '../styles/_Layout.css';
 import MenuPage from "./MenuPage";
 
 function Layout() {

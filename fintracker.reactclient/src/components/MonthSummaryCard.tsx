@@ -1,11 +1,11 @@
 
 import Moment from 'moment'
 import { createSearchParams, useNavigate } from 'react-router-dom'
-import { addToColour, dateOnly, formatCurrency, toFixed } from '../common/helper.js'
+import '../styles/MonthSummaryCard.css'
 import Pages from '../types/Pages.js'
 import Summary from '../types/Summary.js'
+import { addToColour, dateOnly, formatCurrency, toFixed } from '../utils/helper.js'
 import InOutPills from './InOutPills.js'
-import './styles/MonthSummaryCard.css'
 
 interface DashboardMonthSummaryProps {
     summary: Summary

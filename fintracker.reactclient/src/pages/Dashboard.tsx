@@ -7,18 +7,19 @@ import MonthSummaryCard from '../components/MonthSummaryCard'
 import Spacer from '../components/Spacer'
 import ApiEndpoints from '../types/apiEndpoints'
 import Summary from '../types/Summary'
+import { getTotalIn, getTotalOut } from '../utils/SummaryHelper'
 
 function Dashboard() {
 
     const [searchParams] = useSearchParams()
 
+    const defaultYear = parseInt(searchParams.get("year") ?? "") || undefined
+
     const [summaries, setSummaries] = useState<Summary[]>()
     const [availableYears, setAvailableYears] = useState<number[]>()
-    
-    const defaultYear: number | undefined = parseInt(searchParams.get("year") ?? "") || undefined
     const [year, setYear] = useState(defaultYear)
 
-    // load available years
+    // TODO: refactor API services
     useEffect(() => {
         if (availableYears) {
             if (!year && availableYears[0]) setYear(availableYears[0])
@@ -34,7 +35,6 @@ function Dashboard() {
         if (!year) return
 
         // TODO: push history
-
         getSummaries(year)
     }, [year])
 
@@ -51,7 +51,7 @@ function Dashboard() {
 
             </div>
 
-            <InOutPills totalIn={getTotalIn()} totalOut={getTotalOut()} />
+            <InOutPills totalIn={getTotalIn(summaries)} totalOut={getTotalOut(summaries)} />
 
             <Spacer height={26} />
 
@@ -69,16 +69,6 @@ function Dashboard() {
 
     function yearIsAvailable(year: number) {
         return availableYears && availableYears.indexOf(year) > -1
-    }
-
-    function getTotalIn(): number {
-        return !summaries ? 0 :
-            summaries.map(s => s.totalIn).reduce((sum, i) => sum + i)
-    }
-
-    function getTotalOut(): number {
-        return !summaries ? 0 :
-            summaries.map(s => s.totalOut).reduce((sum, i) => sum + i)
     }
 
     async function getSummaries(year: number) {
@@ -109,7 +99,6 @@ function Dashboard() {
             </div>
         )
     }
-
 }
 
 export default Dashboard

@@ -1,12 +1,6 @@
-import moment from 'moment'
-import { useEffect, useState } from 'react'
-import { formatCurrency } from '../common/helper'
-import ApiEndpoints from '../types/apiEndpoints'
+import '../styles/TransactionTable.css'
 import Transaction from '../types/Transaction'
-import TransactionCategory from '../types/TransactionCategory'
-import CategoryPill from './CategoryPill'
-import CategorySelector from './CategorySelector'
-import './styles/TransactionTable.css'
+import TransactionTableRow from './TransactionTableRow'
 
 interface TransactionTableProps {
     transactions: Transaction[],
@@ -36,57 +30,6 @@ function TransactionTable(props: TransactionTableProps) {
         </div>
     )
 
-    interface TransactionTableRowProps {
-        transaction: Transaction,
-        num: number
-    }
-    function TransactionTableRow(cprops: TransactionTableRowProps) {
-
-        const [isEditingCat, setIsEditingCat] = useState(false)
-        const [newCategory, setNewCategory] = useState<TransactionCategory>()
-
-        useEffect(() => {
-            if (newCategory === undefined) return
-
-            updateTransactionId()
-
-        }, [newCategory, props])
-
-        return (
-            <tr>
-                <td className="bold" title={"Row ID: " + cprops.transaction.id}>{cprops.num}</td>
-                <td className="nobreak">{moment(cprops.transaction.date).format("yyyy-MM-DD")}</td>
-                <td className="ellipsis-overflow lalign" style={{ maxWidth: "70%" }}>{cprops.transaction.memo}</td>
-                <td className="ralign">{formatCurrency(cprops.transaction.amount)}</td>
-                <td onDoubleClick={ () => setIsEditingCat(true) }>
-                    {isEditingCat ?
-
-                        <CategorySelector
-                            onChange={setNewCategory}
-                            value={cprops.transaction.category}
-                            isOpen={true}
-                            onClose={() => setIsEditingCat(false)} /> :
-
-                        <CategoryPill category={cprops.transaction.category} />
-                    }
-                </td>
-            </tr>
-        )
-
-        async function updateTransactionId() {
-
-            if (newCategory === undefined) return
-
-            await fetch(`${ApiEndpoints.UpdateTransactionCategory}?transactionId=${cprops.transaction.id}&categoryId=${newCategory.id}`, {
-                method: "POST"
-            })
-
-            cprops.transaction.category = newCategory
-
-            setIsEditingCat(false)
-            if (props.onChange) props.onChange()
-        }
-    }
 }
 
 export default TransactionTable

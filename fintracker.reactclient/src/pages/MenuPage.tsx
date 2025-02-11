@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import './styles/Menu.css';
-import MenuIcon from '../assets/Menu.svg'
+import MenuIcon from '../assets/Menu.svg';
+import '../styles/Menu.css';
 
 function MenuPage() {
 

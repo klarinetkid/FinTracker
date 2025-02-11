@@ -1,14 +1,14 @@
 import Moment from "moment";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import BackButton from "../components/BackButton";
+import IncomeCard from "../components/IncomeCard";
 import InOutPills from "../components/InOutPills";
 import Spacer from "../components/Spacer";
 import SpendingTable from "../components/SpendingTable";
 import TransactionTable from "../components/TransactionTable";
 import ApiEndpoints from "../types/apiEndpoints";
 import Breakdown from "../types/Breakdown";
-import IncomeCard from "../components/IncomeCard";
-import BackButton from "../components/BackButton";
 
 function BreakdownPage() {
     const [searchParams] = useSearchParams()

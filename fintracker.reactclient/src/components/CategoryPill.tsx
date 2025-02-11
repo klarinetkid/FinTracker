@@ -1,6 +1,6 @@
-import { colourAvgValue } from "../common/helper";
+import '../styles/CategoryPills.css';
 import TransactionCategory, { Uncategorized } from "../types/TransactionCategory";
-import './styles/CategoryPills.css';
+import { colourAvgValue } from "../utils/helper";
 
 interface CategoryPillProps {
     category: TransactionCategory | undefined | null
@@ -9,14 +9,14 @@ interface CategoryPillProps {
 function CategoryPill(props: CategoryPillProps) {
 
     const cat: TransactionCategory = props.category ?? Uncategorized
+    const className = cat.id >= 0 ? "category-pill" : "category-pill uncategorized"
+    const style = {
+        backgroundColor: "#" + cat.colour,
+        color: colourAvgValue(cat.colour) > (0xff / 2) ? "black" : "white"
+    }
 
     return (
-        <span className={cat.id >= 0 ? "category-pill" : "category-pill uncategorized"}
-            style={{
-                backgroundColor: "#" + cat.colour,
-                color: colourAvgValue(cat.colour) > (0xff/2) ? "black" : "white"
-            }}
-        >
+        <span className={className} style={style}>
             {cat.categoryName}
         </span>
     )
