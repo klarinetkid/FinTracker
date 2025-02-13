@@ -2,9 +2,8 @@
 import TransactionCategory from './TransactionCategory';
 
 type CategoryTotal = {
-    total: number, // TODO: int? float?
-    percentOfIncome: number, // TODO: int? float?
-    //date: Date // don't know if needed
+    total: number,
+    percentOfIncome: number,
     category: TransactionCategory | null
 }
 

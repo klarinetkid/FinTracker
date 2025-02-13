@@ -6,9 +6,11 @@ import DashboardIncrementButton from '../components/DashboardIncrementButton'
 import InOutPills from '../components/InOutPills'
 import MonthSummaryCard from '../components/MonthSummaryCard'
 import Spacer from '../components/Spacer'
-import SummaryService from '../services/SummaryService'
-import Summary from '../types/Summary'
-import { getTotalIn, getTotalOut } from '../utils/SummaryHelper'
+import BreakdownService from '../services/BreakdownService'
+import SummaryService from '../services/MetadataService'
+import Breakdown from '../types/Breakdown'
+import { getTotalIn, getTotalOut } from '../utils/BreakdownHelper'
+import MetadataService from '../services/MetadataService'
 
 function Dashboard() {
 
@@ -16,7 +18,7 @@ function Dashboard() {
 
     const defaultYear = parseInt(searchParams.get("year") ?? "") || undefined
 
-    const [summaries, setSummaries] = useState<Summary[]>()
+    const [breakdowns, setBreakdowns] = useState<Breakdown[]>()
     const [availableYears, setAvailableYears] = useState<number[]>()
     const [year, setYear] = useState(defaultYear)
 
@@ -38,8 +40,8 @@ function Dashboard() {
     useEffect(() => {
         (async () => {
             if (!year) return
-            const data = await SummaryService.getYearSummaries(year)
-            setSummaries(data) // TODO: push history
+            const data = await BreakdownService.getYearSummaries(year)
+            setBreakdowns(data) // TODO: push history
         })()
     }, [year])
 
@@ -69,15 +71,21 @@ function Dashboard() {
 
             </div>
 
-            <InOutPills totalIn={getTotalIn(summaries)} totalOut={getTotalOut(summaries)} />
+            {!breakdowns ?
+                ""
+                :
+                <>
+                    <InOutPills totalIn={getTotalIn(breakdowns)} totalOut={getTotalOut(breakdowns)} />
 
-            <Spacer height={26} />
+                    <Spacer height={26} />
 
-            <div className="row">
-                {!summaries ? "loading..." : summaries.filter(s => s.categoryTotals.length > 0).map(s =>
-                    <MonthSummaryCard key={s.start.toString()} summary={s} />
-                )}
-            </div>
+                    <div className="row">
+                        {!breakdowns ? "loading..." : breakdowns.filter(s => s.categoryTotals.length > 0).map(s =>
+                            <MonthSummaryCard key={s.start.toString()} breakdown={s} />
+                        )}
+                    </div>
+                </>
+            }
         </div>
     )
 }

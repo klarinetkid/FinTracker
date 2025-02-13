@@ -10,7 +10,7 @@
 
     .menu-container a {
         display: block;
-        border: solid 1px #ddd;
+        border: solid 1px var(--var-light-border);
         background-color: white;
         height: 30px;
         min-width: 120px;
@@ -26,7 +26,6 @@
 .dropdown-group {
     position: relative
 }
-
 
 .dropdown-submenu {
     position: absolute;

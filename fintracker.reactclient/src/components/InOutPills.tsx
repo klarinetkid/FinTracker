@@ -1,5 +1,5 @@
 import '../styles/InOutPills.css';
-import { formatCurrency } from "../utils/helper";
+import { formatCurrency } from '../utils/NumberHelper';
 
 interface InOutPillsProps {
     totalIn: number,

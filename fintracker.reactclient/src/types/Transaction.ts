@@ -2,10 +2,11 @@ import TransactionCategory from "./TransactionCategory"
 
 type Transaction = {
 	id: number,
-	date: Date, // TODO: should be moment?
+	date: Date,
 	amount: number,
-    memo: string,
-	category: TransactionCategory
+	memo: string,
+	categoryId: number | null | undefined,
+	category: TransactionCategory | null
 }
 
 export default Transaction

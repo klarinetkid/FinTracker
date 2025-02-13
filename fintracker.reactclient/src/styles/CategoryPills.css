@@ -4,6 +4,7 @@
     border-radius: 12px;
     font-weight: 700;
     font-size: 80%;
+    user-select: none
     /*text-transform: uppercase*/
 }
 

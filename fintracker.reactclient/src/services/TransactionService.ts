@@ -1,10 +1,11 @@
+import Transaction from "../types/Transaction";
 import BaseService from "./baseService";
 
 
 class TransactionService extends BaseService {
 
-    updateTransactionCategory(transactionId: number, categoryId: number): Promise<void> {
-        return this.patch('/Categories/UpdateTransaction', { transactionId, categoryId })
+    patchTransaction(transaction: Transaction): Promise<void> {
+        return this.patch('/Transaction/PatchTransaction', transaction)
     }
 
 }

@@ -4,7 +4,7 @@ import BaseService from './baseService';
 class CategoryService extends BaseService {
 
     getCategories(): Promise<TransactionCategory[]> {
-        return this.get<TransactionCategory[]>("/Categories/List")
+        return this.get<TransactionCategory[]>("/Category/List")
     }
 
 }

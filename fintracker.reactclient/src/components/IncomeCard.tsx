@@ -1,6 +1,8 @@
+import useCategorySelection from '../hooks/useCategorySelection';
 import '../styles/IncomeCard.css';
 import CategoryTotal from "../types/CategoryTotal";
-import { formatCurrency } from "../utils/helper";
+import { Uncategorized } from '../types/TransactionCategory';
+import { formatCurrency } from '../utils/NumberHelper';
 import CategoryPill from "./CategoryPill";
 
 interface IncomeCardProps {
@@ -9,8 +11,10 @@ interface IncomeCardProps {
 
 function IncomeCard(props: IncomeCardProps) {
 
+    const categorySelection = useCategorySelection()
+
     return (
-        <div className="income-card">
+        <div className={`income-card ${categorySelection.isSelected(props.categoryTotal.category ?? Uncategorized) ? "selected" : ""}`} onClick={() => categorySelection.toggleCategory(props.categoryTotal.category ?? Uncategorized) }>
             <CategoryPill category={props.categoryTotal.category} />
             <h2>+{formatCurrency(props.categoryTotal.total)}</h2>
         </div>

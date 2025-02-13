@@ -13,18 +13,3 @@ function Layout() {
 }
 
 export default Layout;
-
-//<div className="nav-bar">
-//    <div>
-//        Dashboard
-//    </div>
-//    <div>
-//        Year
-//    </div>
-//    <div>
-//        System
-//    </div>
-//    <div>
-//        Import
-//    </div>
-//</div>

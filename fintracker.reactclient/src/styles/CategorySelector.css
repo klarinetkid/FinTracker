@@ -1,11 +1,13 @@
 
 .category-selector {
     position: relative;
-    display: inline-block;
-    border: solid 1px #ddd;
-    padding: 4px 0;
+    display: inline-flex;
+    border: solid 1px var(--var-light-border);
+    padding: 4px 4px;
     min-height: 24px;
-    min-width: 135px
+    min-width: 135px;
+    align-items: center;
+    justify-content: center;
 }
 
 .category-selector-menu.open {
@@ -26,18 +28,24 @@
 .category-option {
     padding: 8px 0;
     cursor: pointer;
-    border-bottom: solid 1px #ddd
+    border-bottom: solid 1px var(--var-light-border)
 }
 
     .category-option:hover {
-        background-color: #eeeeee
+        background-color: var(--var-light-bg)
     }
 
     .category-option:active {
-        background-color: #dddddd
+        background-color: var(--var-light-border)
     }
 
 .category-selector-placeholder {
     font-style: italic;
     color: #aaaaaa
+}
+
+.clear-category-select {
+    cursor: pointer;
+    background-color: black;
+    border-radius: 50px;
 }

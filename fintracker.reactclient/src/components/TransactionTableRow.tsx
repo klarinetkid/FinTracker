@@ -1,15 +1,16 @@
-import Moment from "moment"
+import moment from "moment"
 import { useEffect, useState } from "react"
 import TransactionService from "../services/TransactionService"
 import Transaction from "../types/Transaction"
-import TransactionCategory from "../types/TransactionCategory"
-import { formatCurrency } from "../utils/helper"
+import TransactionCategory, { Uncategorized } from "../types/TransactionCategory"
+import { formatCurrency } from "../utils/NumberHelper"
 import CategoryPill from "./CategoryPill"
 import CategorySelector from "./CategorySelector"
+import useCategorySelection from "../hooks/useCategorySelection"
 
 interface TransactionTableRowProps {
     transaction: Transaction,
-    num: number,
+    rowId: number,
     onChange?: () => void
 }
 
@@ -18,47 +19,50 @@ function TransactionTableRow(props: TransactionTableRowProps) {
     const [isEditingCat, setIsEditingCat] = useState(false)
     const [newCategory, setNewCategory] = useState<TransactionCategory>()
 
+    const [transaction, setTransaction] = useState(props.transaction)
+
+    const categorySelection = useCategorySelection()
+
     useEffect(() => {
-        if (newCategory === undefined) return
-
-        updateTransactionCategoryId()
-
-    }, [newCategory]) // TODO: figure out best way to use async function
+        patchTransaction()
+    }, [newCategory])
 
     return (
-        <tr>
-            <td className="bold" title={"Row ID: " + props.transaction.id}>{props.num}</td>
-            <td className="nobreak">{Moment(props.transaction.date).format("yyyy-MM-DD")}</td>
-            <td className="ellipsis-overflow lalign" style={{ maxWidth: "70%" }}>{props.transaction.memo}</td>
-            <td className="ralign">{formatCurrency(props.transaction.amount)}</td>
+        <tr className={categorySelection.isSelected(transaction.category ?? Uncategorized) ? "selected" : ""} title={transaction.category?.id?.toString()}>
+            <td className="bold" title={"Row ID: " + transaction.id}>{props.rowId}</td>
+            <td className="nobreak">{moment(transaction.date).format("yyyy-MM-DD")}</td>
+            <td className="ellipsis-overflow lalign" style={{ maxWidth: "70%" }}>{transaction.memo}</td>
+            <td className="ralign">{formatCurrency(transaction.amount)}</td>
             <td onDoubleClick={() => setIsEditingCat(true)}>
                 {isEditingCat ?
 
                     <CategorySelector
                         onChange={setNewCategory}
-                        value={props.transaction.category}
+                        value={transaction.category}
                         isOpen={true}
-                        onClose={() => setIsEditingCat(false)} /> :
+                        onClose={() => setIsEditingCat(false)} />
+                    :
 
-                    <CategoryPill category={props.transaction.category} />
+                    <CategoryPill category={transaction.category} />
                 }
             </td>
         </tr>
     )
 
-    async function updateTransactionCategoryId() {
-
+    async function patchTransaction() {
         if (newCategory === undefined) return
 
-        // this just assumes it's successful?
-        //await fetch(`${ApiEndpoints.UpdateTransactionCategory}?transactionId=${props.transaction.id}&categoryId=${newCategory.id}`, {
-        //    method: "POST"
-        //})
-
-        // just assume it's successful?
-        await TransactionService.updateTransactionCategory(props.transaction.id, newCategory.id)
-
-        props.transaction.category = newCategory
+        // TODO: better way to clone this object?
+        const newTransaction: Transaction = {
+            id: transaction.id,
+            amount: transaction.amount,
+            category: newCategory,
+            categoryId: newCategory.id,
+            date: transaction.date,
+            memo: transaction.memo
+        }
+        await TransactionService.patchTransaction(newTransaction)
+        setTransaction(newTransaction)
 
         setIsEditingCat(false)
         if (props.onChange) props.onChange()

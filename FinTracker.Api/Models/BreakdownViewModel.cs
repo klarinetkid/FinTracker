@@ -2,22 +2,23 @@
 using FinTracker.Services.Data.Entities;
 using FinTracker.Services.Data;
 
-namespace FinTracker.Web.Models
+namespace FinTracker.Api.Models
 {
     public class BreakdownViewModel : BaseViewModel
     {
-        public DateTime BreakdownRangeStart { get; set; }
-        public DateTime BreakdownRangeEnd { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
 
         public CategoryTotal[] CategoryTotals { get; set; }
         public TblBudgetItem[] EffectiveBudgetItems { get; set; }
         public TblTransaction[] Transactions { get; set; }
-
+        private IQueryable<TblTransaction> _transactions;
+        // TODO: figure out best way to include this calculation
         public int TotalIn
         {
             get
             {
-                return Transactions.Where(t => t.Amount > 0).Sum(t => t.Amount ?? 0);
+                return _transactions.Where(t => t.Amount > 0).Sum(t => t.Amount ?? 0);
             }
         }
 
@@ -25,7 +26,7 @@ namespace FinTracker.Web.Models
         {
             get
             {
-                return Transactions.Where(t => t.Amount < 0).Sum(t => t.Amount ?? 0);
+                return _transactions.Where(t => t.Amount < 0).Sum(t => t.Amount ?? 0);
             }
         }
 
@@ -38,21 +39,21 @@ namespace FinTracker.Web.Models
                 //      Year 2024 (whole year)
                 //      January - March 2024 (months in the same year)
                 //      November 2023 - February 2024
-                if (BreakdownRangeEnd == BreakdownRangeStart.AddMonths(1))
-                    return BreakdownRangeStart.ToString("MMMM yyyy");
-                else if (BreakdownRangeEnd == BreakdownRangeStart.AddYears(1))
-                    return "Year " + BreakdownRangeStart.ToString("yyyy");
+                if (End == Start.AddMonths(1))
+                    return Start.ToString("MMMM yyyy");
+                else if (End == Start.AddYears(1))
+                    return "Year " + Start.ToString("yyyy");
                 else
                 {
-                    if (BreakdownRangeStart.Year == BreakdownRangeEnd.Year)
+                    if (Start.Year == End.Year)
                     {
-                        return BreakdownRangeStart.ToString("MMMM") + " - " +
-                            BreakdownRangeEnd.AddDays(-1).ToString("MMMM yyyy");
+                        return Start.ToString("MMMM") + " - " +
+                            End.AddDays(-1).ToString("MMMM yyyy");
                     }
                     else
                     {
-                        return BreakdownRangeStart.ToString("MMMM yyyy") + " - " +
-                            BreakdownRangeEnd.AddDays(-1).ToString("MMMM yyyy");
+                        return Start.ToString("MMMM yyyy") + " - " +
+                            End.AddDays(-1).ToString("MMMM yyyy");
                     }
                 }
             }
@@ -60,11 +61,30 @@ namespace FinTracker.Web.Models
 
         public BreakdownViewModel(DateTime rangeStart, DateTime rangeEnd)
         {
-            BreakdownRangeStart = rangeStart;
-            BreakdownRangeEnd = rangeEnd;
-            CategoryTotals = db.GetCategoryTotals(BreakdownRangeStart, BreakdownRangeEnd);
-            EffectiveBudgetItems = db.GetBudgetItemsForDate(BreakdownRangeEnd).ToArray();
-            Transactions = db.TransactionsInRange(BreakdownRangeStart, BreakdownRangeEnd).OrderBy(e => e.Date).ToArray();
+            Start = rangeStart;
+            End = rangeEnd;
+            CategoryTotals = db.GetCategoryTotals(Start, End);
+
+            _transactions = db.TransactionsInRange(Start, End);
+
+            // to be requested explicitly
+            EffectiveBudgetItems = [];
+            Transactions = [];
+        }
+
+        public static BreakdownViewModel GetMonthBreakdown(DateTime monthStart)
+        {
+            return new BreakdownViewModel(monthStart, monthStart.AddMonths(1));
+        }
+
+        public void IncludeEffectiveBudgetItems()
+        {
+            EffectiveBudgetItems = db.GetBudgetItemsForDate(End).ToArray();
+        }
+
+        public void IncludeTransactions()
+        {
+            Transactions = _transactions.OrderBy(e => e.Date).ToArray();
         }
     }
 }

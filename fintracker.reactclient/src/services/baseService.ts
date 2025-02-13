@@ -5,7 +5,7 @@ const baseURL = "/api"
 class BaseService {
     protected axiosInstance: AxiosInstance;
 
-    constructor() { //baseURL: string
+    constructor() {
         this.axiosInstance = axios.create({
             baseURL,
             headers: {

@@ -10,5 +10,5 @@
 }
 
     .back-button:hover {
-        background-color: #eeeeee;
+        background-color: var(--var-light-bg);
     }

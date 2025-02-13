@@ -1,5 +1,5 @@
-import Moment from "moment";
-import { useEffect, useState } from "react";
+import moment from "moment";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import BackButton from "../components/BackButton";
 import IncomeCard from "../components/IncomeCard";
@@ -9,28 +9,28 @@ import SpendingTable from "../components/SpendingTable";
 import TransactionTable from "../components/TransactionTable";
 import BreakdownService from "../services/BreakdownService";
 import Breakdown from "../types/Breakdown";
+import { breakdownParamsAreValid } from "../utils/BreakdownHelper";
+import CategorySelectionProvider from "../contexts/CategorySelectionContext";
 
 function BreakdownPage() {
     const [searchParams] = useSearchParams()
 
-    const start = Moment(searchParams.get("start") ?? "")
-    const end = Moment(searchParams.get("end") ?? "")
-
-    const paramsAreValid = start.isValid() && end.isValid() && end.isAfter(start)
+    const start = useMemo(() => searchParams.get("start") ?? "", [searchParams]);
+    const end = useMemo(() => searchParams.get("end") ?? "", [searchParams]);
+    const paramsAreValid = breakdownParamsAreValid(moment(start), moment(end))
 
     const [breakdown, setBreakdown] = useState<Breakdown>()
     const [isUpdated, setIsUpdated] = useState(false)
 
     useEffect(() => {
-        if (!paramsAreValid || breakdown) return
-        getBreakdown();
-    }, [paramsAreValid, breakdown])
+        if (!paramsAreValid) return
 
-    useEffect(() => {
+        (async () => {
+            const data = await BreakdownService.getBreakdown(start, end)
+            setBreakdown(data)
+        })()
 
-        getBreakdown()
-
-    }, [isUpdated])
+    }, [paramsAreValid, start, end, isUpdated])
 
     return (!paramsAreValid ? 
         <>
@@ -43,46 +43,43 @@ function BreakdownPage() {
 
                 <BackButton />
 
-                <h1 className="display-4">{breakdown ? breakdown.title : "Loading..." }</h1>
+                <h1 className="display-4">{breakdown ? breakdown.title : "" }</h1>
             </div>
 
-            {!breakdown ? "" :
+            {!breakdown ? 
+                ""
+                :
                 <>
                     <InOutPills totalIn={breakdown.totalIn} totalOut={breakdown.totalOut} />
 
                     <Spacer height={26} />
 
-                    <div style={{ display: "flex" }}>
+                    <CategorySelectionProvider>
 
-                        <div style={{ flexGrow: 1, marginRight: 20 }}>
-                            <SpendingTable
-                                breakdown={breakdown}
-                                allowSelect={true}
-                            />
+                        <div style={{ display: "flex" }}>
+
+                            <div style={{ flexGrow: 1, marginRight: 20 }}>
+                                <SpendingTable breakdown={breakdown} />
+                            </div>
+
+                            <div style={{ display: "flex", flexDirection: "column" }}>
+
+                                {breakdown.categoryTotals.filter(c => c.total > 0).map((c, i) =>
+                                    <IncomeCard key={i} categoryTotal={c} />
+                                )}
+
+                            </div>
                         </div>
 
-                        <div style={{ display: "flex", flexDirection: "column" }}>
+                        <Spacer height={26} />
 
-                            {breakdown.categoryTotals.filter(c => c.total > 0).map((c, i) =>
-                                <IncomeCard key={i} categoryTotal={c} />
-                            )}
+                        <TransactionTable transactions={breakdown?.transactions} onChange={refreshList} />
 
-                        </div>
-                    </div>
-
-
-                    <Spacer height={26} />
-
-                    <TransactionTable transactions={breakdown?.transactions} onChange={refreshList} />
+                    </CategorySelectionProvider>
                 </>
             }
         </div>
-    );
-
-    async function getBreakdown() {
-        const data = await BreakdownService.getBreakdown(start, end)
-        setBreakdown(data)
-    }
+    )
 
     function refreshList() {
         setIsUpdated(!isUpdated)

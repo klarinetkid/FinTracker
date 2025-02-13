@@ -2,10 +2,6 @@
     border-collapse: collapse
 }
 
-    .breakdown-table table td, .breakdown-table table th {
-        /*border: solid 1px #ddd*/
-    }
-
 .breakdown-cat-bar-row {
     height: 4px
 }
@@ -38,23 +34,30 @@
             border-top: none;
         }
 
-.breakdown-cat-spacer-row:not(:last-of-type) {
+
+.breakdown-cat-spacer-row, .breakdown-table thead tr:last-child {
+    border-bottom: rgb(222, 226, 230) solid 1px;
+}
+
+.breakdown-cat-spacer-row {
     height: 8px;
     border-bottom: rgb(222, 226, 230) solid 1px;
 }
 
-.breakdown-cat-bar-row.selected, .breakdown-cat-value-row.selected {
-    background-color: #e6e6ff
+.breakdown-table tbody.selected tr {
+    background-color: var(--var-selected-highlight)
 }
 
 .budget-dev-over {
-    color: rgb(220, 53, 69)
+    color: var(--var-danger)
 }
 
 .budget-dev-under {
-    color: rgb(25, 135, 84)
+    color: var(--var-success)
 }
 
 .budget-dev-yearly {
-    color: rgb(255, 193, 7)
+    color: var(--var-warning)
 }
+
+/* TODO: same borders for rows in this table as the transaction table */

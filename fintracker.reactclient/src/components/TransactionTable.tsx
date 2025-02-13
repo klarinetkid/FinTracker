@@ -23,7 +23,7 @@ function TransactionTable(props: TransactionTableProps) {
                 </thead>
                 <tbody>
                     {props.transactions.map((t, i) =>
-                        <TransactionTableRow key={t.id} transaction={t} num={i+1} />
+                        <TransactionTableRow key={t.id} transaction={t} rowId={i + 1} onChange={props.onChange} />
                     )}
                 </tbody>
             </table>

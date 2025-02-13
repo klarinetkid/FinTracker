@@ -1,12 +1,12 @@
 
 type TransactionCategory = {
-    id: number,
+    id: number | undefined,
     categoryName: string,
     colour: string
 }
 
 export const Uncategorized: TransactionCategory = {
-    id: -1,
+    id: undefined,
     categoryName: "uncategorized",
     colour: "ffffff"
 }

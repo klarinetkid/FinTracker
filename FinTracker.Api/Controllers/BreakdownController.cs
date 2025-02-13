@@ -1,18 +1,27 @@
-﻿using FinTracker.Web.Models;
+﻿using FinTracker.Api.Models;
+using FinTracker.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinTracker.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     public class BreakdownController : Controller
     {
         [HttpGet]
-        public BreakdownViewModel GetBreakdown(DateTime? start, DateTime? end)
+        public BreakdownViewModel GetBreakdown([FromQuery] BreakdownQuery query)
         {
-            if (!(start.HasValue && end.HasValue) || end <= start) throw new ArgumentException();
+            BreakdownService service = new BreakdownService();
+            return service.GetBreakdown(query);
+        }
 
-            return new BreakdownViewModel(start.Value, end.Value);
+        [HttpGet]
+        public IEnumerable<BreakdownViewModel> GetMonthlyBreakdownsForYear(int? year)
+        {
+            if (year == null) throw new ArgumentNullException();
+
+            BreakdownService service = new BreakdownService();
+            return service.GetMonthlyBreakdownsForYear(year.Value);
         }
     }
 }

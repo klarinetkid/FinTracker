@@ -1,61 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BudgetItem from "../types/BudgetItem";
 import CategoryTotal from "../types/CategoryTotal";
-import { formatCurrency, toFixed } from "../utils/helper";
 import CategoryPill from "./CategoryPill";
 import Checkbox from "./Checkbox";
+import { formatCurrency, toFixed } from "../utils/NumberHelper";
+import useCategorySelection from "../hooks/useCategorySelection";
+import { Uncategorized } from "../types/TransactionCategory";
 
 interface BreakdownTableRowProps {
     categoryTotal: CategoryTotal,
     budget?: BudgetItem,
-    budgetFactor: number,
+    budgetFactor?: number,
     totalSpend: number,
-    allowSelect?: boolean,
-
+    noSelect?: boolean,
     spendingCategories: CategoryTotal[],
-
-    // for when implementing selection
-    //selectedCategories: CategoryTotal[],
-    //setSelectedCategories: React.Dispatch<React.SetStateAction<CategoryTotal[]>>
 }
 
 function SpendingTableRow(props: BreakdownTableRowProps) {
 
-    const [isSelected, setIsSelected] = useState(false)
-
-    const monthlyBudgetAmount = !props.budget ? 0 : Math.floor(props.budget.amount * props.budgetFactor)
+    // TODO: clean this up
+    const monthlyBudgetAmount = !props.budget ? 0 : Math.floor(props.budget.amount * (props.budgetFactor ?? 1)) 
     const diff = monthlyBudgetAmount + props.categoryTotal.total
     const deviation = diff / monthlyBudgetAmount * 100;
 
-    // add/remove from selection
-    //useEffect(() => {
-    //    console.log("isSelected changed")
-    //    const newSelected = [...props.selectedCategories]
 
-    //    if (!isSelected) {
-    //        const index = newSelected.indexOf(props.categoryTotal)
-    //        if (index > -1) newSelected.splice(index, 1)
-    //    } else {
-    //        newSelected.push(props.categoryTotal)
-    //    }
+    const category = props.categoryTotal.category ?? Uncategorized
+    const categorySelection = useCategorySelection()
+    const [isSelected, setIsSelected] = useState(categorySelection.isSelected(category))
 
-    //    //if (newSelected.length !== selectedCategories.length)
-    //    //    setSelectedCategories(newSelected)
-    //}, [isSelected])
+    useEffect(() => {
+        setIsSelected(categorySelection.isSelected(category))
+    }, [categorySelection, category])
 
     return (
-        <>
+        <tbody className={isSelected ? "selected" : ""} >
             <tr className={`breakdown-cat-bar-row ${isSelected ? "selected" : ""}`}>
-                {!props.allowSelect ? "" :
-                    <td rowSpan={2}>
-                        <Checkbox checked={isSelected} onChange={(val) => setIsSelected(val)} />
-                    </td>
-                }
+                <td rowSpan={2}>
+                    {props.noSelect ? "" :
+                        // TODO figure out if this is a good way to get it to rerender with key property
+                        <Checkbox key={isSelected.toString()} checked={isSelected} onChange={() => categorySelection.toggleCategory(category)} />
+                    }
+                </td>
                 <td colSpan={1}>
                     <div
                         className="breakdown-cat-bar-start"
                         style={{
-                            backgroundColor: "#" + (props.categoryTotal.category?.colour),
+                            backgroundColor: "#" + category.colour,
                             border: props.categoryTotal.category ? "" : "solid black 1px",
                             width: "100%"
                         }}></div>
@@ -64,9 +54,9 @@ function SpendingTableRow(props: BreakdownTableRowProps) {
                     <div
                         className="breakdown-cat-bar"
                         style={{
-                            backgroundColor: "#" + (props.categoryTotal.category?.colour),
+                            backgroundColor: "#" + category.colour,
                             border: props.categoryTotal.category ? "" : "solid black 1px",
-                            width: (props.categoryTotal.total / props.spendingCategories[0].total * 100) + "%"
+                            maxWidth: (props.categoryTotal.total / props.spendingCategories[0].total * 100) + "%"
                         }}></div>
                 </td>
             </tr>
@@ -97,8 +87,11 @@ function SpendingTableRow(props: BreakdownTableRowProps) {
                     }
                 </td>
             </tr>
-            <tr className="breakdown-cat-spacer-row"></tr>
-        </>
+            <tr className={`breakdown-cat-spacer-row ${isSelected ? "selected" : ""}`}>
+                <td colSpan={ 7}></td>
+            </tr>
+        </tbody>
+        
     )
 }
 
